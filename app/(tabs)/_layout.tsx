@@ -2,32 +2,98 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 
 import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Image } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const insets = useSafeAreaInsets();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: 'black',
         headerShown: false,
         tabBarButton: HapticTab,
+        tabBarStyle: {
+          height: 70 + insets.bottom, // Add bottom inset to height
+          paddingBottom: insets.bottom, // Respect safe area
+          paddingTop: 5,
+          elevation: 0,
+          backgroundColor: '#fff',
+        },
       }}>
       <Tabs.Screen
-        name="index"
+        name="home"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ focused }) => {
+            return (
+              <Image
+                source={focused ? require('../../assets/icons/home-active.png') : require('../../assets/icons/home-inactive.png')}
+                style={{
+                  width: 22,
+                  height: 22,
+                  resizeMode: 'contain'
+                }}
+              />
+            );
+          }
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="progress"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Progress',
+          tabBarIcon: ({ focused }) => {
+            return (
+              <Image
+                source={focused ? require('../../assets/icons/progress-active.png') : require('../../assets/icons/progress-inactive.png')}
+                style={{
+                  width: 22,
+                  height: 22,
+                  resizeMode: 'contain'
+                }}
+              />
+            );
+          }
+        }}
+      />
+      <Tabs.Screen
+        name="meals"
+        options={{
+          title: 'Meals',
+          tabBarIcon: ({ focused }) => {
+            return (
+              <Image
+                source={focused ? require('../../assets/icons/dish-active.png') : require('../../assets/icons/dish-inactive.png')}
+                style={{
+                  width: 22,
+                  height: 22,
+                  resizeMode: 'contain'
+                }}
+              />
+            );
+          }
+        }}
+      />
+      <Tabs.Screen
+        name="workout"
+        options={{
+          title: 'Workout',
+          tabBarIcon: ({ focused }) => {
+            return (
+              <Image
+                source={focused ? require('../../assets/icons/weight-active.png') : require('../../assets/icons/weight-inactive.png')}
+                style={{
+                  width: 22,
+                  height: 22,
+                  resizeMode: 'contain'
+                }}
+              />
+            );
+          }
         }}
       />
     </Tabs>

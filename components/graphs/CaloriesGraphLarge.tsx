@@ -1,0 +1,96 @@
+import React, { useEffect } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { Easing, useSharedValue, withTiming } from 'react-native-reanimated';
+import CircularProgress from './CircularProgress';
+import VerticalProgressBar from './VerticalProgressBar';
+
+const CaloriesGraphLarge = () => {
+
+    const progress = useSharedValue(0);
+
+    useEffect(() => {
+        progress.value = withTiming(0, {
+            duration: 10 * 1000,
+            easing: Easing.linear,
+        });
+    }, []);
+
+    return (
+        <View style={styles.mainContainer}>
+            <View style={styles.infoContainer}>
+                <CircularProgress
+                    size={150}
+                    current={1200}
+                    target={2000}
+                    showValues={true}
+                    unit=" kcal"
+                    color="#000"
+                />
+
+                <View style={{ flex: 1, marginLeft: 25 }}>
+                    <VerticalProgressBar
+                        current={180}
+                        target={250}
+                        label="Carbs"
+                        color="#5FCB00"
+                    />
+                    <VerticalProgressBar
+                        current={120}
+                        target={150}
+                        label="Protein"
+                        color="#ffd500ff"
+                    />
+                    <VerticalProgressBar
+                        current={45}
+                        target={65}
+                        label="Fats"
+                        color="#E92CAA"
+                    />
+                </View>
+
+            </View >
+            <View style={styles.checkCaloriesContainer}>
+                <Text style={styles.checkCaloriesText}>Check calories</Text>
+            </View>
+        </View>
+    )
+}
+
+export default CaloriesGraphLarge
+
+const styles = StyleSheet.create({
+    mainContainer: {
+        width: '100%',
+        paddingVertical: 20,
+        paddingHorizontal: 20,
+        backgroundColor: '#fff',
+        borderRadius: 30,
+        shadowColor: "rgba(0, 0, 0, 0.3)",
+        shadowOffset: {
+            width: 0,
+            height: 0,
+        },
+        shadowOpacity: 0.18,
+        shadowRadius: 4.59,
+        elevation: 5
+    },
+    infoContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    checkCaloriesContainer: {
+        borderColor: 'rgba(0,0,0,0.2)',
+        borderWidth: 2,
+        borderStyle: 'dashed',
+        paddingVertical: 12,
+        paddingHorizontal: 15,
+        borderRadius: 25,
+        marginTop: 10
+    },
+    checkCaloriesText: {
+        fontSize: 18,
+        fontWeight: '500',
+        color: 'rgba(0,0,0,0.4)'
+    }
+})
