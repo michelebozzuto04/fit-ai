@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
+import { TouchableRipple } from 'react-native-paper';
 import { Easing, useSharedValue, withTiming } from 'react-native-reanimated';
 import CircularProgress from './CircularProgress';
 import VerticalProgressBar from './VerticalProgressBar';
@@ -16,43 +17,56 @@ const CaloriesGraphLarge = () => {
     }, []);
 
     return (
-        <View style={styles.mainContainer}>
-            <View style={styles.infoContainer}>
-                <CircularProgress
-                    size={150}
-                    current={1200}
-                    target={2000}
-                    showValues={true}
-                    unit=" kcal"
-                    color="#000"
-                />
+        <TouchableRipple
+            borderless
+            style={styles.mainContainer}
+            onPress={() => console.log('Go to Activity Screen...')}
+        >
+            <>
+                <View style={styles.infoContainer}>
+                    <CircularProgress
+                        size={150}
+                        current={1200}
+                        target={2000}
+                        showValues={true}
+                        unit=" kcal"
+                        color="#000"
+                    />
 
-                <View style={{ flex: 1, marginLeft: 25 }}>
-                    <VerticalProgressBar
-                        current={180}
-                        target={250}
-                        label="Carbs"
-                        color="#5FCB00"
-                    />
-                    <VerticalProgressBar
-                        current={120}
-                        target={150}
-                        label="Protein"
-                        color="#ffd500ff"
-                    />
-                    <VerticalProgressBar
-                        current={45}
-                        target={65}
-                        label="Fats"
-                        color="#E92CAA"
-                    />
-                </View>
+                    <View style={{ flex: 1, marginLeft: 25 }}>
+                        <VerticalProgressBar
+                            current={180}
+                            target={250}
+                            label="Carbs"
+                            color="#5FCB00"
+                        />
+                        <VerticalProgressBar
+                            current={120}
+                            target={150}
+                            label="Protein"
+                            color="#ffd500ff"
+                        />
+                        <VerticalProgressBar
+                            current={45}
+                            target={65}
+                            label="Fats"
+                            color="#E92CAA"
+                        />
+                    </View>
 
-            </View >
-            <View style={styles.checkCaloriesContainer}>
-                <Text style={styles.checkCaloriesText}>Check calories</Text>
-            </View>
-        </View>
+                </View >
+                <TouchableRipple
+                    borderless
+                    style={styles.checkCaloriesContainer}
+                    onPress={() => console.log('Go to Meal Scan Screen')}
+                >
+                    <>
+                        <Text style={styles.checkCaloriesText}>Check calories</Text>
+                        <Image source={require('../../assets/icons/scan.png')} style={{ width: 24, height: 24, resizeMode: 'contain' }} />
+                    </>
+                </TouchableRipple>
+            </>
+        </TouchableRipple>
     )
 }
 
@@ -80,6 +94,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     checkCaloriesContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         borderColor: 'rgba(0,0,0,0.2)',
         borderWidth: 2,
         borderStyle: 'dashed',

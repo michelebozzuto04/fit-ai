@@ -72,10 +72,10 @@ const CircularProgress = ({
                 <View style={styles.textContainer}>
                     <Image source={require('../../assets/icons/fire.png')} style={{ width: 28, height: 28, resizeMode: 'contain' }} />
                     <Text style={[styles.valueText, { color: textColor }]}>
-                        {displayValue}
+                        {displayValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                     </Text>
                     <Text style={[styles.targetText, { color: textColor, opacity: 0.6 }]}>
-                        of {target}{unit}
+                        of {target.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}{unit}
                     </Text>
                 </View>
             );
