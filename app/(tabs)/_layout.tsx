@@ -16,7 +16,9 @@ export default function TabLayout() {
         tabBarActiveTintColor: 'black',
         headerShown: false,
         tabBarButton: HapticTab,
+        tabBarHideOnKeyboard: true, // Add this
         tabBarStyle: {
+          position: 'absolute',
           height: 70 + insets.bottom, // Add bottom inset to height
           paddingBottom: insets.bottom, // Respect safe area
           paddingTop: 5,

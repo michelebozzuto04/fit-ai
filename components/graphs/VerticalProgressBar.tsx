@@ -13,7 +13,7 @@ const VerticalProgressBar = ({
     showValues = true,
     showLabel = true,
     duration = 1000,
-    borderRadius = 4
+    borderRadius = 2
 }) => {
     const animatedHeight = useRef(new Animated.Value(0)).current;
     const animatedCurrent = useRef(new Animated.Value(0)).current;
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: 14,
-        fontWeight: '600',
+        fontWeight: '500',
     },
     barContainer: {
         justifyContent: 'flex-end',

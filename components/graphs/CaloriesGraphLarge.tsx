@@ -62,7 +62,7 @@ const CaloriesGraphLarge = () => {
                 >
                     <>
                         <Text style={styles.checkCaloriesText}>Check calories</Text>
-                        <Image source={require('../../assets/icons/scan.png')} style={{ width: 24, height: 24, resizeMode: 'contain' }} />
+                        <Image source={require('../../assets/icons/scan.png')} style={{ width: 20, height: 20, resizeMode: 'contain' }} />
                     </>
                 </TouchableRipple>
             </>
@@ -86,7 +86,9 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.18,
         shadowRadius: 4.59,
-        elevation: 5
+        elevation: 5,
+        marginBottom: 10,
+        marginTop: 10
     },
     infoContainer: {
         flexDirection: 'row',
@@ -98,7 +100,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         borderColor: 'rgba(0,0,0,0.2)',
-        borderWidth: 2,
+        borderWidth: 1.5,
         borderStyle: 'dashed',
         paddingVertical: 12,
         paddingHorizontal: 15,
@@ -106,7 +108,7 @@ const styles = StyleSheet.create({
         marginTop: 10
     },
     checkCaloriesText: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: '500',
         color: 'rgba(0,0,0,0.4)'
     }
