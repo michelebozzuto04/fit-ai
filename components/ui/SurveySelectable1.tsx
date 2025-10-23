@@ -1,15 +1,37 @@
-import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import React from 'react';
+import { StyleSheet, Text } from 'react-native';
+import { TouchableRipple } from 'react-native-paper';
 
-const SurveySelectable1 = ({ selection }: any) => {
-    return (
-        <View style={styles.container}>
-            <Text style={styles.selectionText}>{selection}</Text>
-        </View>
-    )
+interface SurveySelectable1Props {
+    selection: string;
+    isSelected?: boolean;
+    onPress: () => void;
 }
 
-export default SurveySelectable1
+const SurveySelectable1: React.FC<SurveySelectable1Props> = ({
+    selection,
+    isSelected = false,
+    onPress
+}) => {
+    return (
+        <TouchableRipple
+            onPress={onPress}
+            style={[
+                styles.container,
+                isSelected && styles.selectedContainer
+            ]}
+        >
+            <Text style={[
+                styles.selectionText,
+                isSelected && styles.selectedText
+            ]}>
+                {selection}
+            </Text>
+        </TouchableRipple>
+    );
+};
+
+export default SurveySelectable1;
 
 const styles = StyleSheet.create({
     container: {
@@ -23,8 +45,14 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         marginBottom: 15
     },
+    selectedContainer: {
+        backgroundColor: '#000',
+    },
     selectionText: {
         fontSize: 18,
         fontWeight: '400'
-    }
+    },
+    selectedText: {
+        color: '#fff'
+    },
 })

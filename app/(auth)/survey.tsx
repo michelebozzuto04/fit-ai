@@ -4,19 +4,26 @@ import React, { useEffect, useState } from 'react';
 import { Animated, BackHandler, StyleSheet, Text, View } from 'react-native';
 import { TouchableRipple } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Step1 from '../surveySteps/Step1';
-import Step2 from '../surveySteps/Step2';
+import { surveySteps } from '../../config/surveyConfig';
 
 export default function Survey() {
     const [currentStep, setCurrentStep] = useState(1);
     const [fadeAnim] = useState(new Animated.Value(1));
-    const totalSteps = 2;
+    const totalSteps = surveySteps.length; // Automatically set to 15!
 
-    // Handle system back button
+    // Initialize survey data with all keys
+    const [surveyData, setSurveyData] = useState<Record<string, any>>(() => {
+        const initialData: Record<string, any> = {};
+        surveySteps.forEach(step => {
+            initialData[step.key] = null;
+        });
+        return initialData;
+    });
+
     useEffect(() => {
         const backAction = () => {
             handleBack();
-            return true; // Prevent default back behavior
+            return true;
         };
 
         const backHandler = BackHandler.addEventListener(
@@ -25,9 +32,35 @@ export default function Survey() {
         );
 
         return () => backHandler.remove();
-    }, [currentStep]); // Re-attach listener when step changes
+    }, [currentStep]);
+
+    // Handle data change from any step
+    const handleDataChange = (value: any) => {
+        const currentStepConfig = surveySteps[currentStep - 1];
+        setSurveyData(prev => ({
+            ...prev,
+            [currentStepConfig.key]: value
+        }));
+    };
+
+    // Validate current step before continuing
+    const canContinue = () => {
+        const currentStepConfig = surveySteps[currentStep - 1];
+        const currentValue = surveyData[currentStepConfig.key];
+
+        if (currentStepConfig.validation) {
+            return currentStepConfig.validation(currentValue);
+        }
+
+        return true; // No validation = always can continue
+    };
 
     const handleContinue = () => {
+        if (!canContinue()) {
+            // Optionally show an error message
+            return;
+        }
+
         if (currentStep < totalSteps) {
             Animated.timing(fadeAnim, {
                 toValue: 0,
@@ -42,6 +75,8 @@ export default function Survey() {
                 }).start();
             });
         } else {
+            // Survey complete! Handle submission
+            console.log('Survey Data:', surveyData);
             router.back();
         }
     };
@@ -65,15 +100,18 @@ export default function Survey() {
         }
     };
 
+    // 🎯 THIS IS THE MAGIC - Dynamic rendering!
     const renderStep = () => {
-        switch (currentStep) {
-            case 1:
-                return <Step1 />;
-            case 2:
-                return <Step2 />;
-            default:
-                return <Step1 />;
-        }
+        const currentStepConfig = surveySteps[currentStep - 1];
+        const StepComponent = currentStepConfig.component;
+        const currentValue = surveyData[currentStepConfig.key];
+
+        return (
+            <StepComponent
+                value={currentValue}
+                onChange={handleDataChange}
+            />
+        );
     };
 
     const progressPercentage = (currentStep / totalSteps) * 100;
@@ -106,8 +144,12 @@ export default function Survey() {
                 <TouchableRipple
                     borderless
                     rippleColor={'rgba(255, 255, 255, 0.1)'}
-                    style={styles.button}
+                    style={[
+                        styles.button,
+                        !canContinue() && styles.buttonDisabled
+                    ]}
                     onPress={handleContinue}
+                    disabled={!canContinue()}
                 >
                     <Text style={styles.buttonText}>
                         {currentStep === totalSteps ? 'Finish' : 'Continue'}
@@ -116,7 +158,7 @@ export default function Survey() {
             </View>
         </SafeAreaView>
     );
-};
+}
 
 const styles = StyleSheet.create({
     mainContainer: {
@@ -161,6 +203,16 @@ const styles = StyleSheet.create({
         marginTop: 20,
         marginBottom: 10,
         backgroundColor: '#000'
+    },
+    buttonDisabled: {
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 20,
+        borderRadius: 100,
+        marginTop: 20,
+        marginBottom: 10,
+        backgroundColor: 'rgba(0, 0, 0, 0.1)',
     },
     buttonText: {
         fontSize: 18,
