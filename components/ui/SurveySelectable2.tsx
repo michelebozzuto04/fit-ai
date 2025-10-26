@@ -2,14 +2,16 @@ import React from 'react';
 import { StyleSheet, Text } from 'react-native';
 import { TouchableRipple } from 'react-native-paper';
 
-interface SurveySelectable1Props {
+interface SurveySelectable2Props {
     selection: string;
+    description: string;
     isSelected?: boolean;
     onPress: () => void;
 }
 
-const SurveySelectable1: React.FC<SurveySelectable1Props> = ({
+const SurveySelectable2: React.FC<SurveySelectable2Props> = ({
     selection,
+    description,
     isSelected = false,
     onPress
 }) => {
@@ -21,17 +23,25 @@ const SurveySelectable1: React.FC<SurveySelectable1Props> = ({
                 isSelected && styles.selectedContainer
             ]}
         >
-            <Text style={[
-                styles.selectionText,
-                isSelected && styles.selectedText
-            ]}>
-                {selection}
-            </Text>
+            <>
+                <Text style={[
+                    styles.selectionText,
+                    isSelected && styles.selectedText
+                ]}>
+                    {selection}
+                </Text>
+                <Text style={[
+                    styles.descriptionText,
+                    isSelected && styles.selectedDescriptionText
+                ]}>
+                    {description}
+                </Text>
+            </>
         </TouchableRipple>
     );
 };
 
-export default SurveySelectable1;
+export default SurveySelectable2;
 
 const styles = StyleSheet.create({
     container: {
@@ -40,7 +50,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#F6F6F6',
         borderRadius: 20,
         justifyContent: 'center',
-        alignItems: 'center',
         borderColor: 'rgba(0,0,0,0.05)',
         borderWidth: 1,
         marginBottom: 15
@@ -49,10 +58,18 @@ const styles = StyleSheet.create({
         backgroundColor: '#000',
     },
     selectionText: {
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: '500'
     },
     selectedText: {
         color: '#fff'
+    },
+    descriptionText: {
+        fontSize: 14,
+        fontWeight: '500',
+        color: 'rgba(0, 0, 0, 0.3)'
+    },
+    selectedDescriptionText: {
+        color: 'rgba(255, 255, 255, 0.7)'
     },
 })

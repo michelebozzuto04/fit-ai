@@ -1,21 +1,28 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { Animated, BackHandler, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, BackHandler, Dimensions, StyleSheet, Text, View } from 'react-native';
 import { TouchableRipple } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { surveySteps } from '../../config/surveyConfig';
 
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
 export default function Survey() {
     const [currentStep, setCurrentStep] = useState(1);
-    const [fadeAnim] = useState(new Animated.Value(1));
-    const totalSteps = surveySteps.length; // Automatically set to 15!
+    const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
+    const slideAnim = useRef(new Animated.Value(0)).current;
+    const totalSteps = surveySteps.length;
 
     // Initialize survey data with all keys
     const [surveyData, setSurveyData] = useState<Record<string, any>>(() => {
         const initialData: Record<string, any> = {};
         surveySteps.forEach(step => {
-            initialData[step.key] = null;
+            // Only add to surveyData if the step has a key
+            if (step.key && step.key.trim() !== '') {
+                // Initialize Step11 (desiredTrainingActivity) as empty array
+                initialData[step.key] = step.key === 'desiredTrainingActivity' ? [] : null;
+            }
         });
         return initialData;
     });
@@ -34,46 +41,49 @@ export default function Survey() {
         return () => backHandler.remove();
     }, [currentStep]);
 
+    // Reset animation when step changes
+    useEffect(() => {
+        slideAnim.setValue(0);
+    }, [currentStep]);
+
     // Handle data change from any step
     const handleDataChange = (value: any) => {
         const currentStepConfig = surveySteps[currentStep - 1];
-        setSurveyData(prev => ({
-            ...prev,
-            [currentStepConfig.key]: value
-        }));
+        // Only update surveyData if the step has a key
+        if (currentStepConfig.key && currentStepConfig.key.trim() !== '') {
+            setSurveyData(prev => ({
+                ...prev,
+                [currentStepConfig.key]: value
+            }));
+        }
     };
 
     // Validate current step before continuing
     const canContinue = () => {
         const currentStepConfig = surveySteps[currentStep - 1];
+
+        // Info screens (empty key) can always continue
+        if (!currentStepConfig.key || currentStepConfig.key.trim() === '') {
+            return true;
+        }
+
         const currentValue = surveyData[currentStepConfig.key];
 
         if (currentStepConfig.validation) {
             return currentStepConfig.validation(currentValue);
         }
 
-        return true; // No validation = always can continue
+        return true;
     };
 
     const handleContinue = () => {
         if (!canContinue()) {
-            // Optionally show an error message
             return;
         }
 
         if (currentStep < totalSteps) {
-            Animated.timing(fadeAnim, {
-                toValue: 0,
-                duration: 200,
-                useNativeDriver: true,
-            }).start(() => {
-                setCurrentStep(currentStep + 1);
-                Animated.timing(fadeAnim, {
-                    toValue: 1,
-                    duration: 200,
-                    useNativeDriver: true,
-                }).start();
-            });
+            setDirection('forward');
+            setCurrentStep(currentStep + 1);
         } else {
             // Survey complete! Handle submission
             console.log('Survey Data:', surveyData);
@@ -83,28 +93,23 @@ export default function Survey() {
 
     const handleBack = () => {
         if (currentStep > 1) {
-            Animated.timing(fadeAnim, {
-                toValue: 0,
-                duration: 200,
-                useNativeDriver: true,
-            }).start(() => {
-                setCurrentStep(currentStep - 1);
-                Animated.timing(fadeAnim, {
-                    toValue: 1,
-                    duration: 200,
-                    useNativeDriver: true,
-                }).start();
-            });
+            setDirection('backward');
+            setCurrentStep(currentStep - 1);
         } else {
             router.back();
         }
     };
 
-    // 🎯 THIS IS THE MAGIC - Dynamic rendering!
+    // Dynamic rendering
     const renderStep = () => {
         const currentStepConfig = surveySteps[currentStep - 1];
         const StepComponent = currentStepConfig.component;
         const currentValue = surveyData[currentStepConfig.key];
+
+        // For info screens (empty key), pass null as value
+        const stepValue = (currentStepConfig.key && currentStepConfig.key.trim() !== '')
+            ? surveyData[currentStepConfig.key]
+            : null;
 
         return (
             <StepComponent
@@ -127,7 +132,7 @@ export default function Survey() {
                 </TouchableRipple>
 
                 <View style={styles.progressBarContainer}>
-                    <Animated.View
+                    <View
                         style={[
                             styles.progressBar,
                             { width: `${progressPercentage}%` }
@@ -136,9 +141,9 @@ export default function Survey() {
                 </View>
             </View>
 
-            <Animated.View style={[styles.stepContainer, { opacity: fadeAnim }]}>
+            <View style={styles.stepContainer} key={`step-${currentStep}`}>
                 {renderStep()}
-            </Animated.View>
+            </View>
 
             <View>
                 <TouchableRipple

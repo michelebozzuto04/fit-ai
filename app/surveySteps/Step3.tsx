@@ -1,6 +1,6 @@
 import IOSSpinnerPicker from '@/components/ui/CustomSpinnerPicker';
 import UnitSwitcher from '@/components/ui/UnitSwitcher';
-import React, { useState } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 interface Step3Props {
@@ -8,21 +8,19 @@ interface Step3Props {
     onChange: (value: string) => void;
 }
 
-const Step3: React.FC<Step3Props> = ({ value, onChange }) => {
-    const [unit, setUnit] = useState<'cm' | 'ft'>('cm');
-
+const Step3: React.FC<Step3Props> = memo(({ value, onChange }) => {
     // Parse the stored value to get feet and inches
-    const parseHeight = (heightValue: string | null) => {
-        if (!heightValue) return { feet: 5, inches: 7, cm: 170 };
+    const heightData = useMemo(() => {
+        if (!value) return { feet: 5, inches: 7, cm: 170 };
 
-        if (heightValue.includes('cm')) {
-            const cm = parseInt(heightValue);
+        if (value.includes('cm')) {
+            const cm = parseInt(value);
             const totalInches = cm / 2.54;
             const feet = Math.floor(totalInches / 12);
             const inches = Math.round(totalInches % 12);
             return { feet, inches, cm };
         } else {
-            const match = heightValue.match(/(\d+)'(\d+)"/);
+            const match = value.match(/(\d+)'(\d+)"/);
             if (match) {
                 const feet = parseInt(match[1]);
                 const inches = parseInt(match[2]);
@@ -32,58 +30,57 @@ const Step3: React.FC<Step3Props> = ({ value, onChange }) => {
             }
         }
         return { feet: 5, inches: 7, cm: 170 };
-    };
+    }, [value]);
 
-    const [heightData, setHeightData] = useState(parseHeight(value));
+    // Determine current unit from value
+    const unit = useMemo(() => {
+        if (value?.includes('cm')) return 'cm';
+        return 'ft';
+    }, [value]);
 
-    // Generate options
-    const cmOptions = Array.from({ length: 191 }, (_, i) => `${i + 60} cm`);
-    const feetOptions = Array.from({ length: 5 }, (_, i) => `${i + 4} ft`); // 4 to 8 feet
-    const inchesOptions = Array.from({ length: 12 }, (_, i) => `${i} in`); // 0 to 11 inches
+    // Memoize options generation
+    const cmOptions = useMemo(() =>
+        Array.from({ length: 191 }, (_, i) => `${i + 60} cm`),
+        []
+    );
+
+    const feetOptions = useMemo(() =>
+        Array.from({ length: 5 }, (_, i) => `${i + 4} ft`),
+        []
+    );
+
+    const inchesOptions = useMemo(() =>
+        Array.from({ length: 12 }, (_, i) => `${i} in`),
+        []
+    );
 
     // Handle unit change
-    const handleUnitChange = (newUnit: string) => {
+    const handleUnitChange = useCallback((newUnit: string) => {
         const selectedUnit = newUnit as 'cm' | 'ft';
-        setUnit(selectedUnit);
 
-        // Update the value in the parent with the current height data
         if (selectedUnit === 'cm') {
             onChange(`${heightData.cm} cm`);
         } else {
             onChange(`${heightData.feet}'${heightData.inches}"`);
         }
-    };
+    }, [heightData, onChange]);
 
     // Handle CM change
-    const handleCmChange = (selectedValue: string) => {
-        const cm = parseInt(selectedValue);
-        const totalInches = cm / 2.54;
-        const feet = Math.floor(totalInches / 12);
-        const inches = Math.round(totalInches % 12);
-
-        setHeightData({ feet, inches, cm });
+    const handleCmChange = useCallback((selectedValue: string) => {
         onChange(selectedValue);
-    };
+    }, [onChange]);
 
     // Handle Feet change
-    const handleFeetChange = (selectedValue: string) => {
+    const handleFeetChange = useCallback((selectedValue: string) => {
         const feet = parseInt(selectedValue);
-        const totalInches = (feet * 12) + heightData.inches;
-        const cm = Math.round(totalInches * 2.54);
-
-        setHeightData({ feet, inches: heightData.inches, cm });
         onChange(`${feet}'${heightData.inches}"`);
-    };
+    }, [heightData.inches, onChange]);
 
     // Handle Inches change
-    const handleInchesChange = (selectedValue: string) => {
+    const handleInchesChange = useCallback((selectedValue: string) => {
         const inches = parseInt(selectedValue);
-        const totalInches = (heightData.feet * 12) + inches;
-        const cm = Math.round(totalInches * 2.54);
-
-        setHeightData({ feet: heightData.feet, inches, cm });
         onChange(`${heightData.feet}'${inches}"`);
-    };
+    }, [heightData.feet, onChange]);
 
     return (
         <View style={styles.mainContainer}>
@@ -134,7 +131,9 @@ const Step3: React.FC<Step3Props> = ({ value, onChange }) => {
             )}
         </View>
     );
-};
+});
+
+Step3.displayName = 'Step3';
 
 export default Step3;
 
@@ -165,11 +164,5 @@ const styles = StyleSheet.create({
     },
     pickerWrapper: {
         flex: 1
-    },
-    pickerLabel: {
-        fontSize: 16,
-        fontWeight: '600',
-        marginBottom: 10,
-        color: '#000',
     },
 });
