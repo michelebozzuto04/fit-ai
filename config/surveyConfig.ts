@@ -3,6 +3,7 @@ import Step1 from '../app/surveySteps/Step1';
 import Step10 from '../app/surveySteps/Step10';
 import Step11 from '../app/surveySteps/Step11';
 import Step12 from '../app/surveySteps/Step12';
+import Step13 from '../app/surveySteps/Step13';
 import Step2 from '../app/surveySteps/Step2';
 import Step3 from '../app/surveySteps/Step3';
 import Step4 from '../app/surveySteps/Step4';
@@ -80,8 +81,12 @@ export const surveySteps: StepConfig[] = [
     },
     {
         component: Step12,
-        key: 'desiredWorkouts',
+        key: 'workoutsPerWeek',
         validation: (value) => !!value
     },
-    // Add all 15 steps here...
+    {
+        component: Step13,
+        key: 'dietType',
+        validation: (value) => !!value
+    },
 ];

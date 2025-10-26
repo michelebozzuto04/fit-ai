@@ -18,7 +18,8 @@ function DraggableSlider<T extends string | number>({
     labels
 }: DraggableSliderProps<T>) {
     const [sliderWidth, setSliderWidth] = useState(0);
-    const currentIndex = value !== null ? values.indexOf(value) : 0;
+    const effectiveValue = value ?? values[0];
+    const currentIndex = values.indexOf(effectiveValue);
     const position = new Animated.Value(currentIndex);
     const lastHapticIndexRef = useRef(currentIndex);
 
@@ -57,9 +58,9 @@ function DraggableSlider<T extends string | number>({
     return (
         <View style={styles.container}>
             <Text style={styles.valueText}>
-                {value !== null ? `${value}${unit}` : 'Select'}
+                {`${effectiveValue}${unit}`}
             </Text>
-            {labels && value !== null && (
+            {labels && (
                 <Text style={styles.labelText}>{labels[currentIndex]}</Text>
             )}
 

@@ -3,7 +3,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 interface Step12Props {
-    value: number | null;
+    value: number;  // Changed from 'number | 1'
     onChange: (value: number) => void;
 }
 
