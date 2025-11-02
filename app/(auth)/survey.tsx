@@ -81,6 +81,18 @@ export default function Survey() {
             return;
         }
 
+        // Check if we're at step 16
+        if (currentStep === 16) {
+            // Navigate to loading/processing screen
+            router.replace({
+                pathname: '/(auth)/PlanGenerationScreen', // or whatever route you want
+                params: {
+                    surveyData: JSON.stringify(surveyData) // Pass survey data if needed
+                }
+            });
+            return;
+        }
+
         if (currentStep < totalSteps) {
             setDirection('forward');
             setCurrentStep(currentStep + 1);
@@ -106,10 +118,15 @@ export default function Survey() {
         const StepComponent = currentStepConfig.component;
         const currentValue = surveyData[currentStepConfig.key];
 
-        // For info screens (empty key), pass null as value
-        const stepValue = (currentStepConfig.key && currentStepConfig.key.trim() !== '')
-            ? surveyData[currentStepConfig.key]
-            : null;
+        // For Step16 (or any summary step), pass full surveyData
+        if (currentStep === 16) {
+            return (
+                <StepComponent
+                    value={surveyData} // Pass full data
+                    onChange={handleDataChange}
+                />
+            );
+        }
 
         return (
             <StepComponent
@@ -145,7 +162,7 @@ export default function Survey() {
                 {renderStep()}
             </View>
 
-            <View>
+            <View style={styles.continueButtonContainer}>
                 <TouchableRipple
                     borderless
                     rippleColor={'rgba(255, 255, 255, 0.1)'}
@@ -157,7 +174,7 @@ export default function Survey() {
                     disabled={!canContinue()}
                 >
                     <Text style={styles.buttonText}>
-                        {currentStep === totalSteps ? 'Finish' : 'Continue'}
+                        {currentStep === totalSteps ? 'Get my plan' : 'Continue'}
                     </Text>
                 </TouchableRipple>
             </View>
@@ -170,7 +187,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
         marginHorizontal: 20,
-        paddingVertical: 10
+        paddingTop: 10
     },
     headerContainer: {
         gap: 15,
@@ -206,7 +223,7 @@ const styles = StyleSheet.create({
         paddingVertical: 20,
         borderRadius: 100,
         marginTop: 20,
-        marginBottom: 10,
+        marginBottom: 20,
         backgroundColor: '#000'
     },
     buttonDisabled: {
@@ -224,4 +241,7 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         color: '#fff'
     },
+    continueButtonContainer: {
+        backgroundColor: '#fff'
+    }
 });
