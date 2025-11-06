@@ -1,23 +1,20 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react'
+import { StyleSheet, Text, View } from 'react-native'
 
-interface Step5Props {
-    value: string | null;
-    onChange: (value: string) => void;
-}
-
-const Step5: React.FC<Step5Props> = ({ value, onChange }) => {
+const planPreview = () => {
     return (
         <View style={styles.mainContainer}>
-            <Text style={styles.title}>Ad screen - Da vedere bene</Text>
+            <Text style={styles.title}>What is your main goal?</Text>
             <Text style={styles.subtitle}>
                 We will use this to optimize your transformation plan.
             </Text>
+            <View style={styles.selectionsContainer}>
+            </View>
         </View>
-    );
-};
+    )
+}
 
-export default Step5;
+export default planPreview
 
 const styles = StyleSheet.create({
     mainContainer: {
@@ -25,16 +22,16 @@ const styles = StyleSheet.create({
         paddingVertical: 20
     },
     title: {
-        fontFamily: 'SpaceGrotesk-Bold',
-        fontSize: 30
+        fontSize: 30,
+        fontWeight: '700'
     },
     subtitle: {
         fontSize: 16,
-        fontFamily: 'Manrope-Medium',
+        fontWeight: '400',
         color: 'rgba(0,0,0,0.5)',
         marginTop: 10
     },
     selectionsContainer: {
         marginTop: 40
     }
-})
+});

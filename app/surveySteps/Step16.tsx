@@ -63,12 +63,12 @@ const styles = StyleSheet.create({
         paddingVertical: 20
     },
     title: {
-        fontSize: 30,
-        fontWeight: '700'
+        fontFamily: 'SpaceGrotesk-Bold',
+        fontSize: 30
     },
     subtitle: {
         fontSize: 16,
-        fontWeight: '400',
+        fontFamily: 'Manrope-Medium',
         color: 'rgba(0,0,0,0.5)',
         marginTop: 10,
         marginBottom: 30
@@ -105,13 +105,13 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     cardLabel: {
-        fontSize: 15,
+        fontSize: 14,
         color: 'rgba(0,0,0,0.4)',
-        fontWeight: '500'
+        fontFamily: 'Manrope-SemiBold'
     },
     cardValue: {
-        fontSize: 15,
-        fontWeight: '600',
+        fontSize: 14,
+        fontFamily: 'Manrope-Bold',
         color: '#000',
         textAlign: 'right',
         flex: 1,

@@ -79,8 +79,8 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255, 255, 255, 1)'
     },
     selectionText: {
-        fontSize: 16,
-        fontWeight: '500'
+        fontSize: 14,
+        fontFamily: 'Manrope-SemiBold'
     },
     selectedText: {
         color: '#fff'

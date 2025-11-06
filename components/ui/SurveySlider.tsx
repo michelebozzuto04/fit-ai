@@ -101,14 +101,14 @@ const styles = StyleSheet.create({
     },
     valueText: {
         fontSize: 100,
-        fontWeight: '900',
+        fontFamily: 'SpaceGrotesk-Bold',
         textAlign: 'center',
         color: '#E4E4E4',
         marginBottom: 40
     },
     labelText: {
-        fontSize: 18,
-        fontWeight: '500',
+        fontSize: 16,
+        fontFamily: 'Manrope-SemiBold',
         textAlign: 'center',
         color: '#000',
         marginTop: -30,

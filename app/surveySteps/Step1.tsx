@@ -43,12 +43,12 @@ const styles = StyleSheet.create({
         paddingVertical: 20
     },
     title: {
-        fontSize: 30,
-        fontWeight: '700'
+        fontFamily: 'SpaceGrotesk-Bold',
+        fontSize: 30
     },
     subtitle: {
         fontSize: 16,
-        fontWeight: '400',
+        fontFamily: 'Manrope-Medium',
         color: 'rgba(0,0,0,0.5)',
         marginTop: 10
     },

@@ -37,7 +37,8 @@ const onboarding = () => {
                     <Text style={styles.getStartedText}>Get Started</Text>
                 </TouchableRipple>
                 <Text style={styles.actionMessage}>
-                    Already have an account? <Text style={styles.signinText}>Sign in</Text></Text>
+                    Already have an account? <Text style={styles.signinText}>Sign in</Text>
+                </Text>
             </View>
 
         </View>
@@ -74,17 +75,23 @@ const styles = StyleSheet.create({
     },
     motto: {
         color: '#000',
+        fontFamily: 'SpaceGrotesk-Regular',
         fontSize: 32,
         textAlign: 'center'
     },
     mottoHighlighted: {
-        fontWeight: '800'
+        fontFamily: 'SpaceGrotesk-Bold'
     },
     actionMessage: {
-        color: '#000'
+        color: '#000',
+        fontFamily: 'SpaceGrotesk-Regular'
     },
     signinText: {
-        fontWeight: '800',
+        fontFamily: 'SpaceGrotesk-Bold',
+        textDecorationLine: 'underline'
+    },
+    signinTextHighlighted: {
+        fontFamily: 'SpaceGrotesk-Bold',
         textDecorationLine: 'underline'
     },
     getStartedButton: {
@@ -98,8 +105,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#000'
     },
     getStartedText: {
-        fontSize: 18,
-        fontWeight: '700',
+        fontSize: 16,
+        fontFamily: 'Manrope-Bold',
         color: '#fff'
     },
     backgroundImage: {

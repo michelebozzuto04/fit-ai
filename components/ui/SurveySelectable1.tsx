@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     },
     selectionText: {
         fontSize: 16,
-        fontWeight: '500'
+        fontFamily: 'Manrope-SemiBold'
     },
     selectedText: {
         color: '#fff'

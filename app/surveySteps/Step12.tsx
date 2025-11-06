@@ -30,8 +30,13 @@ const styles = StyleSheet.create({
         padding: 20
     },
     title: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        marginBottom: 40
-    }
+        fontFamily: 'SpaceGrotesk-Bold',
+        fontSize: 30
+    },
+    subtitle: {
+        fontSize: 16,
+        fontFamily: 'Manrope-Medium',
+        color: 'rgba(0,0,0,0.5)',
+        marginTop: 10
+    },
 });

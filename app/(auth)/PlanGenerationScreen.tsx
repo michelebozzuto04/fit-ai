@@ -178,16 +178,15 @@ const styles = StyleSheet.create({
         marginBottom: 30
     },
     title: {
-        fontSize: 26,
-        fontWeight: '700',
-        color: '#000',
+        fontFamily: 'SpaceGrotesk-Bold',
+        fontSize: 30,
         marginBottom: 10,
         textAlign: 'center'
     },
     subtitle: {
         fontSize: 16,
-        fontWeight: '500',
-        color: 'rgba(0,0,0,0.6)',
+        fontFamily: 'Manrope-Medium',
+        color: 'rgba(0,0,0,0.5)',
         marginBottom: 30,
         textAlign: 'center'
     },
@@ -242,65 +241,3 @@ const styles = StyleSheet.create({
         backgroundColor: '#000'
     }
 });
-
-
-// Updated Survey.tsx modifications
-// Add this to your Survey component:
-
-/*
-import PlanGenerationScreen from './PlanGenerationScreen';
-
-// Add state for showing generation screen
-const [showGenerationScreen, setShowGenerationScreen] = useState(false);
-
-// Modify handleContinue function
-const handleContinue = () => {
-    if (!canContinue()) {
-        return;
-    }
-
-    if (currentStep < totalSteps) {
-        // Check if we're on Step 15 (before final step)
-        if (currentStep === 15) {
-            setShowGenerationScreen(true);
-            return;
-        }
-        
-        setDirection('forward');
-        setCurrentStep(currentStep + 1);
-    } else {
-        // Survey complete! Handle submission
-        console.log('Survey Data:', surveyData);
-        router.back();
-    }
-};
-
-// Add callback for generation complete
-const handleGenerationComplete = () => {
-    setShowGenerationScreen(false);
-    setDirection('forward');
-    setCurrentStep(currentStep + 1);
-};
-
-// In the render, add this after SafeAreaView:
-return (
-    <SafeAreaView style={styles.mainContainer}>
-        {showGenerationScreen && (
-            <PlanGenerationScreen 
-                onComplete={handleGenerationComplete}
-                surveyData={surveyData}
-            />
-        )}
-        
-        {!showGenerationScreen && (
-            <>
-                <View style={styles.headerContainer}>
-                    // ... existing header code
-                </View>
-                
-                // ... rest of the existing code
-            </>
-        )}
-    </SafeAreaView>
-);
-*/

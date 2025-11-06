@@ -58,15 +58,15 @@ const styles = StyleSheet.create({
         backgroundColor: '#000',
     },
     selectionText: {
-        fontSize: 18,
-        fontWeight: '500'
+        fontSize: 16,
+        fontFamily: 'Manrope-SemiBold'
     },
     selectedText: {
         color: '#fff'
     },
     descriptionText: {
         fontSize: 14,
-        fontWeight: '500',
+        fontFamily: 'Manrope-Medium',
         color: 'rgba(0, 0, 0, 0.3)'
     },
     selectedDescriptionText: {

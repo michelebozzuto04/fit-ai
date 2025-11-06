@@ -1,16 +1,14 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import * as Font from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
 import CustomSplashScreen from '@/components/SplashScreen';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-
-// Keep the native splash screen visible while we load resources
-SplashScreen.preventAutoHideAsync();
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -19,21 +17,31 @@ export const unstable_settings = {
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [appIsReady, setAppIsReady] = useState(false);
+  const [fontsLoaded, setFontsLoaded] = useState(false);
 
   useEffect(() => {
     async function prepare() {
       try {
-        // Hide the native splash screen immediately
-        await SplashScreen.hideAsync();
+        // ✅ Prevent auto-hiding *inside* useEffect
+        await SplashScreen.preventAutoHideAsync();
 
-        // Check authentication, load fonts, etc.
-        // await checkAuthStatus();
-        // await Font.loadAsync({...});
+        // ✅ Load local fonts
+        await Font.loadAsync({
+          'SpaceGrotesk-Light': require('../assets/fonts/SpaceGrotesk-Light.ttf'),
+          'SpaceGrotesk-Regular': require('../assets/fonts/SpaceGrotesk-Regular.ttf'),
+          'SpaceGrotesk-Medium': require('../assets/fonts/SpaceGrotesk-Medium.ttf'),
+          'SpaceGrotesk-SemiBold': require('../assets/fonts/SpaceGrotesk-SemiBold.ttf'),
+          'SpaceGrotesk-Bold': require('../assets/fonts/SpaceGrotesk-Bold.ttf'),
+          'Manrope-Light': require('../assets/fonts/Manrope-Light.ttf'),
+          'Manrope-Regular': require('../assets/fonts/Manrope-Regular.ttf'),
+          'Manrope-Medium': require('../assets/fonts/Manrope-Medium.ttf'),
+          'Manrope-SemiBold': require('../assets/fonts/Manrope-SemiBold.ttf'),
+          'Manrope-Bold': require('../assets/fonts/Manrope-Bold.ttf'),
+        });
 
-        // Simulate loading (remove in production or replace with actual loading)
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        setFontsLoaded(true);
       } catch (e) {
-        console.warn(e);
+        console.warn('Error loading fonts or splash:', e);
       } finally {
         setAppIsReady(true);
       }
@@ -42,14 +50,19 @@ export default function RootLayout() {
     prepare();
   }, []);
 
-  // Show custom splash screen while app is loading
-  if (!appIsReady) {
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded && appIsReady) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, appIsReady]);
+
+  if (!fontsLoaded || !appIsReady) {
     return <CustomSplashScreen />;
   }
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
+      <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>
         <Stack>
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

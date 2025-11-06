@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     review: {
         marginTop: 15,
         fontSize: 14,
-        fontWeight: '500',
+        fontFamily: 'Manrope-SemiBold',
         color: 'rgba(0,0,0,0.5)',
         lineHeight: 22,
     },

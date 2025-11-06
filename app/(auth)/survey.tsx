@@ -84,8 +84,9 @@ export default function Survey() {
         // Check if we're at step 16
         if (currentStep === 16) {
             // Navigate to loading/processing screen
+            console.log(surveyData)
             router.replace({
-                pathname: '/(auth)/PlanGenerationScreen', // or whatever route you want
+                pathname: '/(auth)/planGenerationScreen', // or whatever route you want
                 params: {
                     surveyData: JSON.stringify(surveyData) // Pass survey data if needed
                 }
@@ -233,12 +234,12 @@ const styles = StyleSheet.create({
         paddingVertical: 20,
         borderRadius: 100,
         marginTop: 20,
-        marginBottom: 10,
+        marginBottom: 20,
         backgroundColor: 'rgba(0, 0, 0, 0.1)',
     },
     buttonText: {
-        fontSize: 18,
-        fontWeight: '700',
+        fontSize: 16,
+        fontFamily: 'Manrope-Bold',
         color: '#fff'
     },
     continueButtonContainer: {
