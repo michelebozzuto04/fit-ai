@@ -1,6 +1,8 @@
-import { Link, router } from 'expo-router';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { TouchableRipple } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Login() {
@@ -15,6 +17,15 @@ export default function Login() {
 
     return (
         <SafeAreaView style={styles.container}>
+            <View style={styles.header}>
+                <TouchableRipple
+                    borderless
+                    onPress={() => router.back()}
+                    style={styles.backButton}
+                >
+                    <Ionicons name='arrow-back-sharp' size={24} />
+                </TouchableRipple>
+            </View>
             <View style={styles.content}>
                 <Text style={styles.title}>Welcome Back</Text>
                 <Text style={styles.subtitle}>Sign in to continue</Text>
@@ -36,17 +47,14 @@ export default function Login() {
                     secureTextEntry
                 />
 
-                <TouchableOpacity style={styles.button} onPress={handleLogin}>
+                <TouchableRipple
+                    rippleColor={'rgba(255, 255, 255, 0.1)'}
+                    borderless
+                    style={styles.button}
+                    onPress={handleLogin}
+                >
                     <Text style={styles.buttonText}>Sign In</Text>
-                </TouchableOpacity>
-
-                <Link href="/(auth)/signup" asChild>
-                    <TouchableOpacity style={styles.linkButton}>
-                        <Text style={styles.linkText}>
-                            Don't have an account? <Text style={styles.linkTextBold}>Sign Up</Text>
-                        </Text>
-                    </TouchableOpacity>
-                </Link>
+                </TouchableRipple>
             </View>
         </SafeAreaView>
     );
@@ -57,6 +65,18 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
     },
+    header: {
+        paddingVertical: 10,
+        paddingHorizontal: 15,
+    },
+    backButton: {
+        width: 45,
+        height: 45,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#f2f2f2',
+        borderRadius: 100
+    },
     content: {
         flex: 1,
         padding: 20,
@@ -64,11 +84,12 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 32,
-        fontWeight: 'bold',
+        fontFamily: 'SpaceGrotesk-Bold',
         marginBottom: 10,
     },
     subtitle: {
         fontSize: 16,
+        fontFamily: 'Manrope-Regular',
         color: '#666',
         marginBottom: 40,
     },
@@ -78,18 +99,22 @@ const styles = StyleSheet.create({
         padding: 15,
         marginBottom: 15,
         fontSize: 16,
+        fontFamily: 'SpaceGrotesk-Regular'
     },
     button: {
-        backgroundColor: '#000',
-        borderRadius: 10,
-        padding: 15,
+        width: '100%',
+        justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 10,
+        paddingVertical: 20,
+        borderRadius: 100,
+        marginTop: 20,
+        marginBottom: 10,
+        backgroundColor: '#000'
     },
     buttonText: {
-        color: '#fff',
         fontSize: 16,
-        fontWeight: '600',
+        fontFamily: 'Manrope-Bold',
+        color: '#fff'
     },
     linkButton: {
         marginTop: 20,

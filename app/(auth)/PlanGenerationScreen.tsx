@@ -1,15 +1,8 @@
-// PlanGenerationScreen.tsx
-// Save this file in: app/surveySteps/PlanGenerationScreen.tsx
+// app/(auth)/planGenerationScreen.tsx
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Dimensions, StyleSheet, Text, View } from 'react-native';
-
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-
-export interface PlanGenerationScreenProps {
-    onComplete: () => void;
-    surveyData: Record<string, any>;
-}
+import { ActivityIndicator, Alert, Animated, StyleSheet, Text, View } from 'react-native';
 
 const generationSteps = [
     { icon: 'body', text: 'Analyzing your profile...', duration: 2000 },
@@ -19,14 +12,19 @@ const generationSteps = [
     { icon: 'checkmark-circle', text: 'Finalizing your plan...', duration: 2000 }
 ];
 
-const PlanGenerationScreen: React.FC<PlanGenerationScreenProps> = ({ onComplete, surveyData }) => {
+const API_URL = 'http://192.168.178.94:3000'; // Replace with your actual server URL
+
+export default function PlanGenerationScreen() {
+    const params = useLocalSearchParams();
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [progress, setProgress] = useState(0);
+    const [generatedPlan, setGeneratedPlan] = useState(null);
+    const [error, setError] = useState<string | null>(null);
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const scaleAnim = useRef(new Animated.Value(0.8)).current;
 
     useEffect(() => {
-        // Fade in animation on mount
+        // Fade in animation
         Animated.parallel([
             Animated.timing(fadeAnim, {
                 toValue: 1,
@@ -41,36 +39,96 @@ const PlanGenerationScreen: React.FC<PlanGenerationScreenProps> = ({ onComplete,
             })
         ]).start();
 
-        // Progress through steps
-        let currentProgress = 0;
-        let stepIndex = 0;
+        // Start generating plan
+        generatePlan();
+    }, []);
 
-        const progressInterval = setInterval(() => {
-            currentProgress += 1;
-            setProgress(currentProgress);
+    const generatePlan = async () => {
+        try {
+            // Parse survey data from params
+            const surveyData = typeof params.surveyData === 'string'
+                ? JSON.parse(params.surveyData)
+                : params.surveyData;
 
-            if (currentProgress >= 100) {
-                clearInterval(progressInterval);
-                // Wait a bit before completing
-                setTimeout(() => {
-                    onComplete();
-                }, 500);
-            }
-        }, 100); // Update every 100ms for smooth progress (total ~10 seconds)
+            console.log('Generating plan with data:', surveyData);
 
-        // Change steps
-        const stepTimer = setInterval(() => {
-            if (stepIndex < generationSteps.length - 1) {
-                stepIndex++;
-                setCurrentStepIndex(stepIndex);
-            }
-        }, 2000);
+            // Start progress animation
+            let currentProgress = 0;
+            let stepIndex = 0;
 
-        return () => {
+            const progressInterval = setInterval(() => {
+                currentProgress += 2;
+                setProgress(Math.min(currentProgress, 95)); // Stop at 95% until API responds
+            }, 100);
+
+            const stepTimer = setInterval(() => {
+                if (stepIndex < generationSteps.length - 1) {
+                    stepIndex++;
+                    setCurrentStepIndex(stepIndex);
+                }
+            }, 2000);
+
+            // Call API
+            const response = await fetch(`${API_URL}/plan/generate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(surveyData)
+            });
+
             clearInterval(progressInterval);
             clearInterval(stepTimer);
-        };
-    }, []);
+
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+                setGeneratedPlan(data);
+                setProgress(100);
+                setCurrentStepIndex(generationSteps.length - 1);
+
+                // Wait a moment to show completion, then navigate
+                setTimeout(() => {
+                    router.replace({
+                        pathname: '/(auth)/planView',
+                        params: {
+                            planData: JSON.stringify(data)
+                        }
+                    });
+                }, 1000);
+            } else {
+                throw new Error(data.error || 'Failed to generate plan');
+            }
+
+        } catch (err: any) {
+            console.error('Plan generation error:', err);
+            setError(err.message);
+            setProgress(0);
+
+            Alert.alert(
+                'Generation Failed',
+                'Failed to generate your plan. Please check your connection and try again.',
+                [
+                    {
+                        text: 'Retry',
+                        onPress: () => {
+                            setError(null);
+                            generatePlan();
+                        }
+                    },
+                    {
+                        text: 'Go Back',
+                        onPress: () => router.back(),
+                        style: 'cancel'
+                    }
+                ]
+            );
+        }
+    };
 
     const currentStep = generationSteps[currentStepIndex] || generationSteps[0];
 
@@ -95,62 +153,66 @@ const PlanGenerationScreen: React.FC<PlanGenerationScreenProps> = ({ onComplete,
                 </View>
 
                 {/* Loading text */}
-                <Text style={styles.title}>Creating Your Plan</Text>
-                <Text style={styles.subtitle}>{currentStep.text}</Text>
+                <Text style={styles.title}>
+                    {error ? 'Generation Failed' : 'Creating Your Plan'}
+                </Text>
+                <Text style={styles.subtitle}>
+                    {error || currentStep.text}
+                </Text>
 
                 {/* Progress bar */}
-                <View style={styles.progressContainer}>
-                    <View style={styles.progressBarBackground}>
-                        <View
-                            style={[
-                                styles.progressBarFill,
-                                { width: `${progress}%` }
-                            ]}
-                        />
+                {!error && (
+                    <View style={styles.progressContainer}>
+                        <View style={styles.progressBarBackground}>
+                            <View
+                                style={[
+                                    styles.progressBarFill,
+                                    { width: `${progress}%` }
+                                ]}
+                            />
+                        </View>
+                        <Text style={styles.progressText}>{Math.round(progress)}%</Text>
                     </View>
-                    <Text style={styles.progressText}>{Math.round(progress)}%</Text>
-                </View>
+                )}
 
                 {/* Spinner */}
-                <ActivityIndicator size="large" color="#000" style={styles.spinner} />
+                {!error && <ActivityIndicator size="large" color="#000" style={styles.spinner} />}
 
                 {/* Info text */}
                 <View style={styles.infoContainer}>
                     <Text style={styles.infoText}>
-                        Please wait while we personalize your transformation plan based on your goals and preferences.
+                        {error
+                            ? 'Something went wrong. Please try again.'
+                            : 'Please wait while we personalize your transformation plan based on your goals and preferences.'
+                        }
                     </Text>
                 </View>
 
                 {/* Step indicators */}
-                <View style={styles.stepIndicators}>
-                    {generationSteps.map((step, index) => (
-                        <View
-                            key={index}
-                            style={[
-                                styles.stepDot,
-                                index <= currentStepIndex && styles.stepDotActive
-                            ]}
-                        />
-                    ))}
-                </View>
+                {!error && (
+                    <View style={styles.stepIndicators}>
+                        {generationSteps.map((step, index) => (
+                            <View
+                                key={index}
+                                style={[
+                                    styles.stepDot,
+                                    index <= currentStepIndex && styles.stepDotActive
+                                ]}
+                            />
+                        ))}
+                    </View>
+                )}
             </Animated.View>
         </View>
     );
-};
-
-export default PlanGenerationScreen;
+}
 
 const styles = StyleSheet.create({
     overlay: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
+        flex: 1,
         backgroundColor: 'rgba(255, 255, 255, 0.98)',
         justifyContent: 'center',
         alignItems: 'center',
-        zIndex: 9999,
         paddingHorizontal: 20
     },
     container: {
