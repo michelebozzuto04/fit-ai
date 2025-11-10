@@ -1,4 +1,5 @@
 import ActivitySummary from '@/components/ActivitySummary';
+import AddFloatingButton from '@/components/ui/AddFloatingButton';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
@@ -24,34 +25,43 @@ const home = () => {
     };
     return (
         <LinearGradient
-            colors={['#E4E3E4', '#fff', '#fff']}
+            colors={['#F3EBEA', '#EAECEF', '#EFF3F1']}
+            start={{ x: 0, y: 1 }}
             style={styles.gradientBg}>
-            <SafeAreaView style={{ flex: 1 }}>
+            <LinearGradient
+                colors={['rgba(255, 255, 255, 0)', '#fff']}
+                style={styles.gradientBgTop}></LinearGradient>
+            <SafeAreaView style={{ flex: 1, position: 'relative' }}>
                 <ScrollView
                     style={styles.mainContainer}
                     contentContainerStyle={{ paddingBottom: 90 + insets.bottom }} // Add space for tab bar
                     showsVerticalScrollIndicator={false}
+                    bounces={false}
+                    overScrollMode="never"
                 >
-                    <View style={styles.header}>
-                        <Image source={require('../../assets/images/logo.png')} style={styles.logo} />
+                    <View style={styles.paddedContent}>
+                        <View style={styles.header}>
+                            <Image source={require('../../assets/images/logo.png')} style={styles.profileImage} />
 
-                        <View style={styles.headerActions}>
-                            <TouchableOpacity>
-                                <Image source={require('../../assets/icons/search.png')} style={{ width: 22, height: 22, resizeMode: 'contain' }} />
-                            </TouchableOpacity>
-                            <TouchableOpacity>
-                                <Image source={require('../../assets/icons/notification.png')} style={{ width: 22, height: 22, resizeMode: 'contain' }} />
-                            </TouchableOpacity>
+                            <View style={styles.headerActions}>
+                                <TouchableOpacity>
+                                    <Image source={require('../../assets/icons/search.png')} style={{ width: 22, height: 22, resizeMode: 'contain' }} />
+                                </TouchableOpacity>
+                                <TouchableOpacity>
+                                    <Image source={require('../../assets/icons/notification.png')} style={{ width: 22, height: 22, resizeMode: 'contain' }} />
+                                </TouchableOpacity>
+                            </View>
                         </View>
-                    </View>
 
-                    <HorizontalCalendar
-                        onDateSelect={handleDateSelect}
-                        calorieData={calorieData}
-                    />
+                        <HorizontalCalendar
+                            onDateSelect={handleDateSelect}
+                        />
+                    </View>
 
                     <ActivitySummary />
                 </ScrollView>
+
+                <AddFloatingButton />
             </SafeAreaView>
         </LinearGradient>
     )
@@ -61,7 +71,10 @@ export default home
 
 const styles = StyleSheet.create({
     mainContainer: {
-        marginHorizontal: 15
+        // Removed marginHorizontal
+    },
+    paddedContent: {
+        marginHorizontal: 15, // Add padding only to header and calendar
     },
     background: {
         position: 'absolute',
@@ -71,7 +84,16 @@ const styles = StyleSheet.create({
         height: 300,
     },
     gradientBg: {
-        flex: 1
+        flex: 1,
+        zIndex: -1
+    },
+    gradientBgTop: {
+        width: '100%',
+        height: '100%',
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        zIndex: 0
     },
     text: {
         backgroundColor: 'transparent',
@@ -80,20 +102,23 @@ const styles = StyleSheet.create({
     },
     header: {
         paddingVertical: 15,
-        paddingHorizontal: 15,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center'
     },
-    logo: {
-        width: 35,
-        height: 35,
-        resizeMode: 'contain'
+    profileImage: {
+        width: 40,
+        height: 40,
+        backgroundColor: 'red',
+        borderRadius: 100,
+        borderColor: 'rgba(0,0,0,0.1)',
+        borderWidth: 2
     },
     headerActions: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 20,
+        marginRight: 5
     },
     sectionHeader: {
         flexDirection: 'row',

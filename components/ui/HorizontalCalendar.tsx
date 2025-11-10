@@ -1,213 +1,219 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+    Dimensions,
+    NativeScrollEvent,
+    NativeSyntheticEvent,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from 'react-native';
 
-const { width } = Dimensions.get('window');
-const ITEM_WIDTH = 50;
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const ITEM_WIDTH = SCREEN_WIDTH / 7; // Perfect division for 7 days
 
-const HorizontalCalendar = ({ onDateSelect }: any) => {
+interface HorizontalCalendarProps {
+    onDateSelect?: (date: Date) => void;
+}
+
+const HorizontalCalendar: React.FC<HorizontalCalendarProps> = ({ onDateSelect }) => {
     const [selectedDate, setSelectedDate] = useState(new Date());
-    const scrollViewRef = useRef(null);
+    const [currentWeekIndex, setCurrentWeekIndex] = useState(8); // Middle week initially
+    const scrollViewRef = useRef<ScrollView>(null);
 
-    // Generate dates (30 days before and 30 days after today)
-    const generateDates = () => {
-        const dates = [];
+    // Generate 8 weeks before and after today
+    const generateWeeks = () => {
+        const weeks: Date[][] = [];
         const today = new Date();
 
-        for (let i = -30; i <= 30; i++) {
-            const date = new Date(today);
-            date.setDate(today.getDate() + i);
-            dates.push(date);
+        for (let weekOffset = -8; weekOffset <= 8; weekOffset++) {
+            const week: Date[] = [];
+            const startOfWeek = new Date(today);
+            const dayOfWeek = today.getDay(); // Sunday = 0
+            startOfWeek.setDate(today.getDate() - dayOfWeek + weekOffset * 7);
+
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(startOfWeek);
+                date.setDate(startOfWeek.getDate() + i);
+                week.push(date);
+            }
+
+            weeks.push(week);
         }
 
-        return dates;
+        return weeks;
     };
 
-    const dates = generateDates();
+    const weeks = generateWeeks();
 
-    // Get start and end of current week (Sunday to Saturday)
-    const getWeekBounds = () => {
-        const today = new Date();
-        const dayOfWeek = today.getDay();
-
-        const startOfWeek = new Date(today);
-        startOfWeek.setDate(today.getDate() - dayOfWeek);
-        startOfWeek.setHours(0, 0, 0, 0);
-
-        const endOfWeek = new Date(today);
-        endOfWeek.setDate(today.getDate() + (6 - dayOfWeek));
-        endOfWeek.setHours(23, 59, 59, 999);
-
-        return { startOfWeek, endOfWeek };
-    };
-
-    // Check if date is in current week
-    const isInCurrentWeek = (date) => {
-        const { startOfWeek, endOfWeek } = getWeekBounds();
-        return date >= startOfWeek && date <= endOfWeek;
-    };
-
-    // Get day name (Wed, Thu, etc)
-    const getDayName = (date) => {
-        return date.toLocaleDateString('en-US', { weekday: 'short' });
-    };
-
-    // Get day number
-    const getDayNumber = (date) => {
-        return date.getDate();
-    };
-
-    // Check if date is today
-    const isToday = (date) => {
-        const today = new Date();
-        return date.toDateString() === today.toDateString();
-    };
-
-    // Check if date is selected
-    const isSelected = (date) => {
-        return date.toDateString() === selectedDate.toDateString();
-    };
-
-    // Handle date selection
-    const handleDateSelect = (date) => {
+    const handleDateSelect = (date: Date) => {
         setSelectedDate(date);
-        if (onDateSelect) {
-            onDateSelect(date);
-        }
+        onDateSelect?.(date);
     };
 
-    // Center on today on mount
+    const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+        const offsetX = event.nativeEvent.contentOffset.x;
+        const index = Math.round(offsetX / SCREEN_WIDTH);
+        setCurrentWeekIndex(index);
+    };
+
     useEffect(() => {
-        const todayIndex = dates.findIndex(date => isToday(date));
-        if (scrollViewRef.current && todayIndex !== -1) {
-            const scrollPosition = todayIndex * ITEM_WIDTH - (width / 2) + (ITEM_WIDTH / 2);
-            setTimeout(() => {
-                if (scrollViewRef.current) {
-                    scrollViewRef.current.scrollTo({ x: scrollPosition, animated: false });
-                }
-            }, 100);
-        }
+        // Scroll to current week on mount
+        scrollViewRef.current?.scrollTo({
+            x: 8 * SCREEN_WIDTH, // middle week (current)
+            animated: false,
+        });
     }, []);
+
+    const isToday = (date: Date) =>
+        date.toDateString() === new Date().toDateString();
+
+    const isSelected = (date: Date) =>
+        date.toDateString() === selectedDate.toDateString();
+
+    const getDayName = (date: Date) =>
+        date.toLocaleDateString('en-US', { weekday: 'short' });
+
+    const getDayNumber = (date: Date) => date.getDate();
 
     return (
         <View style={styles.container}>
             <ScrollView
                 ref={scrollViewRef}
                 horizontal
+                pagingEnabled
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.scrollContent}
+                onScroll={handleScroll}
+                scrollEventThrottle={16}
                 decelerationRate="fast"
-                snapToInterval={ITEM_WIDTH}
+                snapToInterval={SCREEN_WIDTH}
+                snapToAlignment="center"
             >
-                {dates.map((date, index) => {
-                    const selected = isSelected(date);
-                    const today = isToday(date);
-                    const inCurrentWeek = isInCurrentWeek(date);
+                {weeks.map((week, wIndex) => (
+                    <View key={wIndex} style={styles.weekContainer}>
+                        {week.map((date, dIndex) => {
+                            const selected = isSelected(date);
+                            const today = isToday(date);
 
-                    return (
-                        <TouchableOpacity
-                            key={index}
-                            style={[
-                                styles.dateItem,
-                                !inCurrentWeek && !selected && styles.fadedItem,
-                                selected && styles.selectedItem,
-                            ]}
-                            onPress={() => handleDateSelect(date)}
-                            activeOpacity={0.7}
-                        >
-                            <Text style={[
-                                styles.dayName,
-                                selected && styles.selectedText,
-                            ]}>
-                                {getDayName(date)}
-                            </Text>
+                            return (
+                                <TouchableOpacity
+                                    key={dIndex}
+                                    style={[
+                                        styles.dateItem,
+                                        selected && styles.selectedItem,
+                                    ]}
+                                    onPress={() => handleDateSelect(date)}
+                                    activeOpacity={0.8}
+                                >
+                                    <Text
+                                        style={[
+                                            styles.dayName,
+                                            selected && styles.selectedDayName,
+                                        ]}
+                                    >
+                                        {getDayName(date)}
+                                    </Text>
 
-                            <View style={[
-                                styles.dayCircle,
-                                selected && styles.selectedCircle,
-                            ]}>
-                                <Text style={[
-                                    styles.dayNumber,
-                                    selected && styles.selectedNumberText,
-                                ]}>
-                                    {getDayNumber(date)}
-                                </Text>
-                            </View>
+                                    <View
+                                        style={[
+                                            styles.dayCircle,
+                                            selected && styles.selectedCircle,
+                                        ]}
+                                    >
+                                        <Text
+                                            style={[
+                                                styles.dayNumber,
+                                                selected && styles.selectedDayNumber,
+                                            ]}
+                                        >
+                                            {getDayNumber(date)}
+                                        </Text>
+                                    </View>
 
-                            {today && (
-                                <View style={styles.todayDot} />
-                            )}
-                        </TouchableOpacity>
-                    );
-                })}
+                                    {today && <View style={styles.todayDot} />}
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </View>
+                ))}
             </ScrollView>
         </View>
     );
 };
 
-HorizontalCalendar.defaultProps = {
-    onDateSelect: undefined,
-};
-
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: 'transparent',
+        marginBottom: 10,
     },
-    scrollContent: {
-        paddingHorizontal: 10,
-        gap: 8,
+    weekContainer: {
+        width: SCREEN_WIDTH - 20,
+        flexDirection: 'row',
     },
     dateItem: {
-        width: ITEM_WIDTH - 8,
-        borderRadius: 50,
+        width: ITEM_WIDTH,
         justifyContent: 'center',
         alignItems: 'center',
+        paddingVertical: 8,
         position: 'relative',
-        paddingTop: 8,
-        paddingBottom: 4,
-        gap: 3,
-    },
-    fadedItem: {
-        opacity: 0.4,
     },
     selectedItem: {
         backgroundColor: '#000',
-        opacity: 1,
+        borderRadius: 10,
     },
     dayName: {
         fontSize: 12,
         fontWeight: '600',
-        color: '#999',
+        color: '#888',
+        marginBottom: 4,
         textTransform: 'capitalize',
     },
-    selectedText: {
+    selectedDayName: {
         color: '#fff',
     },
     dayCircle: {
         width: 35,
         height: 35,
-        borderRadius: 30,
+        borderRadius: 20,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
     },
     selectedCircle: {
         backgroundColor: '#fff',
-        borderRadius: 30,
     },
     dayNumber: {
         fontSize: 16,
-        fontWeight: 'bold',
+        fontWeight: '700',
         color: '#000',
     },
-    selectedNumberText: {
+    selectedDayNumber: {
         color: '#000',
     },
     todayDot: {
         position: 'absolute',
-        bottom: 8,
+        bottom: 4,
         width: 5,
         height: 5,
         borderRadius: 2.5,
-        backgroundColor: 'rgba(255, 0, 0, 1)',
+        backgroundColor: 'red',
+    },
+    indicatorContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        paddingVertical: 10,
+    },
+    indicator: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+        backgroundColor: 'rgba(0,0,0,0.2)',
+        marginHorizontal: 3,
+    },
+    activeIndicator: {
+        backgroundColor: '#000',
+        width: 8,
+        height: 8,
+        borderRadius: 4,
     },
 });
 

@@ -23,7 +23,8 @@ export default function TabLayout() {
           paddingBottom: insets.bottom, // Respect safe area
           paddingTop: 5,
           elevation: 0,
-          backgroundColor: '#fff',
+          borderColor: '#fff',
+          backgroundColor: '#fff'
         },
       }}>
       <Tabs.Screen
@@ -48,6 +49,24 @@ export default function TabLayout() {
         name="progress"
         options={{
           title: 'Progress',
+          tabBarIcon: ({ focused }) => {
+            return (
+              <Image
+                source={focused ? require('../../assets/icons/progress-active.png') : require('../../assets/icons/progress-inactive.png')}
+                style={{
+                  width: 22,
+                  height: 22,
+                  resizeMode: 'contain'
+                }}
+              />
+            );
+          }
+        }}
+      />
+      <Tabs.Screen
+        name="aiChat"
+        options={{
+          title: 'AI Chat',
           tabBarIcon: ({ focused }) => {
             return (
               <Image

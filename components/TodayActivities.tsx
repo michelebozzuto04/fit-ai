@@ -1,34 +1,30 @@
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
-import LoggedMeal from './ui/LoggedMeal'
+import ActivityCard from './ui/ActivityCard'
 
-const RecentlyLogged = () => {
+const TodayActivities = () => {
     return (
         <View style={styles.mainContainer}>
             <View style={[styles.sectionHeader, { marginTop: 20 }]}>
-                <Text style={styles.sectionTitle}>Recently added</Text>
+                <Text style={styles.sectionTitle}>Today activities</Text>
             </View>
 
             <ScrollView
-                horizontal
                 contentContainerStyle={{
                     gap: 15
                 }}
                 showsHorizontalScrollIndicator={false}
-                bounces={false}
-                overScrollMode="never"
             >
-                <LoggedMeal />
-                <LoggedMeal />
-                <LoggedMeal />
+                <ActivityCard />
+                <ActivityCard />
             </ScrollView>
 
         </View>
     )
 }
 
-export default RecentlyLogged
+export default TodayActivities
 
 const styles = StyleSheet.create({
     mainContainer: {

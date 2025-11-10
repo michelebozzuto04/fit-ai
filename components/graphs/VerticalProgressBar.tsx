@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
 
 const VerticalProgressBar = ({
-    width = 12,
+    width = 6,
     height = 40,
     current = 0,
     target = 100,
@@ -13,7 +13,7 @@ const VerticalProgressBar = ({
     showValues = true,
     showLabel = true,
     duration = 1000,
-    borderRadius = 2
+    borderRadius = 4
 }) => {
     const animatedHeight = useRef(new Animated.Value(0)).current;
     const animatedCurrent = useRef(new Animated.Value(0)).current;
@@ -83,16 +83,16 @@ const VerticalProgressBar = ({
 
             {showValues && (
                 <View style={styles.labelContainer}>
+                    {showLabel && label && (
+                        <Text style={[styles.label, { color: color }]}>{label}</Text>
+                    )}
+
                     <View style={styles.valuesContainer}>
                         <Text style={styles.currentValue}>
                             {displayValue}
                         </Text>
                         <Text style={styles.targetValue}> /{target}{unit}</Text>
                     </View>
-
-                    {showLabel && label && (
-                        <Text style={[styles.label, { color: color }]}>{label}</Text>
-                    )}
                 </View>
             )}
         </View>
@@ -107,7 +107,8 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: 14,
-        fontWeight: '500',
+        fontFamily: 'SpaceGrotesk-Bold',
+        lineHeight: 14
     },
     barContainer: {
         justifyContent: 'flex-end',
@@ -129,11 +130,11 @@ const styles = StyleSheet.create({
     },
     currentValue: {
         fontSize: 24,
-        fontWeight: '900',
+        fontFamily: 'Manrope-Bold'
     },
     targetValue: {
         fontSize: 12,
-        fontWeight: '500',
+        fontFamily: 'Manrope-Bold',
         marginTop: 5,
         color: 'rgba(0, 0, 0, 0.3)',
     },

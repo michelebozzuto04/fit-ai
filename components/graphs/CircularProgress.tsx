@@ -6,7 +6,7 @@ const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const CircularProgress = ({
     size = 100,
-    strokeWidth = 15,
+    strokeWidth = 10,
     progress,
     current,
     target,
@@ -70,13 +70,7 @@ const CircularProgress = ({
         if (showValues && current !== undefined && target !== undefined) {
             return (
                 <View style={styles.textContainer}>
-                    <Image source={require('../../assets/icons/fire.png')} style={{ width: 28, height: 28, resizeMode: 'contain' }} />
-                    <Text style={[styles.valueText, { color: textColor }]}>
-                        {displayValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-                    </Text>
-                    <Text style={[styles.targetText, { color: textColor, opacity: 0.6 }]}>
-                        of {target.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}{unit}
-                    </Text>
+                    <Image source={require('../../assets/icons/fire.png')} style={{ width: 20, height: 20, resizeMode: 'contain' }} />
                 </View>
             );
         }
@@ -116,7 +110,6 @@ const CircularProgress = ({
                     fill="none"
                     strokeDasharray={circumference}
                     strokeDashoffset={strokeDashoffset}
-                    strokeLinecap="round"
                     transform={`rotate(-90 ${size / 2} ${size / 2})`}
                 />
             </Svg>
@@ -134,6 +127,9 @@ const styles = StyleSheet.create({
         position: 'absolute',
         justifyContent: 'center',
         alignItems: 'center',
+        padding: 10,
+        borderRadius: 100,
+        backgroundColor: 'rgba(0, 0, 0, 0.05)'
     },
     text: {
         fontSize: 18,

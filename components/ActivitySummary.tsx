@@ -1,46 +1,24 @@
 import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
-import { ScrollView } from 'react-native-gesture-handler'
-import BodyWeightGraph from './graphs/BodyWeightGraph'
+import { StyleSheet, View } from 'react-native'
 import CaloriesGraphLarge from './graphs/CaloriesGraphLarge'
-import WaterGraph from './graphs/WaterGraph'
+import GraphCarousel from './graphs/GraphCarousel'
+import GridGraph from './graphs/GridGraph'
 import RecentlyLogged from './RecentlyLogged'
+import TodayActivities from './TodayActivities'
 
 const ActivitySummary = () => {
     return (
-        <>
-            <View style={[styles.sectionHeader, { marginTop: 20 }]}>
-                <Text style={styles.sectionTitle}>My Activity</Text>
-                <Text style={styles.sectionDetails}>View more</Text>
-            </View>
-
-            <CaloriesGraphLarge />
-
-            <ScrollView
-                horizontal={true}
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{
-                    gap: 10,
-                    flexDirection: 'row'
-                }}
-            >
-                <WaterGraph current={1.5} target={5} />
-                <BodyWeightGraph
-                    current={72}
-                    previousWeight={74}
-                />
-                <BodyWeightGraph
-                    current={72}
-                    previousWeight={70}
-                />
-                <BodyWeightGraph
-                    current={72}
-                    previousWeight={70}
-                />
-            </ScrollView>
+        <View style={{ flex: 1 }}>
+            <GraphCarousel>
+                <CaloriesGraphLarge />
+                <GridGraph />
+                <CaloriesGraphLarge />
+            </GraphCarousel>
 
             <RecentlyLogged />
-        </>
+
+            <TodayActivities />
+        </View>
     )
 }
 
