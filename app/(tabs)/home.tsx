@@ -1,9 +1,11 @@
 import ActivitySummary from '@/components/ActivitySummary';
 import AddFloatingButton from '@/components/ui/AddFloatingButton';
+import Avatar from '@/components/ui/Avatar';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
-import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
+import { TouchableRipple } from 'react-native-paper';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import HorizontalCalendar from '../../components/ui/HorizontalCalendar';
 
@@ -41,15 +43,23 @@ const home = () => {
                 >
                     <View style={styles.paddedContent}>
                         <View style={styles.header}>
-                            <Image source={require('../../assets/images/logo.png')} style={styles.profileImage} />
+                            <Avatar name="Michele Bozzuto" size={35} />
 
                             <View style={styles.headerActions}>
-                                <TouchableOpacity>
-                                    <Image source={require('../../assets/icons/search.png')} style={{ width: 22, height: 22, resizeMode: 'contain' }} />
-                                </TouchableOpacity>
-                                <TouchableOpacity>
-                                    <Image source={require('../../assets/icons/notification.png')} style={{ width: 22, height: 22, resizeMode: 'contain' }} />
-                                </TouchableOpacity>
+                                <TouchableRipple
+                                    borderless
+                                    style={styles.headerActionContainer}
+                                    onPress={() => { }}
+                                >
+                                    <Image source={require('../../assets/icons/search.png')} style={{ width: 18, height: 18, resizeMode: 'contain' }} />
+                                </TouchableRipple>
+                                <TouchableRipple
+                                    borderless
+                                    style={styles.headerActionContainer}
+                                    onPress={() => { }}
+                                >
+                                    <Image source={require('../../assets/icons/notification.png')} style={{ width: 18, height: 18, resizeMode: 'contain' }} />
+                                </TouchableRipple>
                             </View>
                         </View>
 
@@ -117,8 +127,16 @@ const styles = StyleSheet.create({
     headerActions: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 20,
+        gap: 10,
         marginRight: 5
+    },
+    headerActionContainer: {
+        width: 40,
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 100,
+        backgroundColor: '#fff'
     },
     sectionHeader: {
         flexDirection: 'row',
