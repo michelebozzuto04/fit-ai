@@ -11,7 +11,11 @@ import {
 } from 'react-native';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const ITEM_WIDTH = SCREEN_WIDTH / 7; // Perfect division for 7 days
+const CALENDAR_WIDTH = SCREEN_WIDTH - 30; // Accounting for marginHorizontal: 15 on both sides
+const HORIZONTAL_PADDING = 5; // Padding on each side of week container
+const ITEM_MARGIN = 4; // Margin on each side of date item
+const AVAILABLE_WIDTH = CALENDAR_WIDTH - (HORIZONTAL_PADDING * 2); // Width after padding
+const ITEM_WIDTH = (AVAILABLE_WIDTH - (ITEM_MARGIN * 2 * 7)) / 7; // Width for each item accounting for margins
 
 interface HorizontalCalendarProps {
     onDateSelect?: (date: Date) => void;
@@ -54,14 +58,14 @@ const HorizontalCalendar: React.FC<HorizontalCalendarProps> = ({ onDateSelect })
 
     const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
         const offsetX = event.nativeEvent.contentOffset.x;
-        const index = Math.round(offsetX / SCREEN_WIDTH);
+        const index = Math.round(offsetX / CALENDAR_WIDTH);
         setCurrentWeekIndex(index);
     };
 
     useEffect(() => {
         // Scroll to current week on mount
         scrollViewRef.current?.scrollTo({
-            x: 8 * SCREEN_WIDTH, // middle week (current)
+            x: 8 * CALENDAR_WIDTH, // middle week (current)
             animated: false,
         });
     }, []);
@@ -87,7 +91,7 @@ const HorizontalCalendar: React.FC<HorizontalCalendarProps> = ({ onDateSelect })
                 onScroll={handleScroll}
                 scrollEventThrottle={16}
                 decelerationRate="fast"
-                snapToInterval={SCREEN_WIDTH}
+                snapToInterval={CALENDAR_WIDTH}
                 snapToAlignment="center"
             >
                 {weeks.map((week, wIndex) => (
@@ -101,7 +105,7 @@ const HorizontalCalendar: React.FC<HorizontalCalendarProps> = ({ onDateSelect })
                                     key={dIndex}
                                     style={[
                                         styles.dateItem,
-                                        selected && styles.selectedItem,
+                                        selected ? styles.selectedItem : today && styles.selectedTodayItem
                                     ]}
                                     onPress={() => handleDateSelect(date)}
                                     activeOpacity={0.8}
@@ -109,7 +113,7 @@ const HorizontalCalendar: React.FC<HorizontalCalendarProps> = ({ onDateSelect })
                                     <Text
                                         style={[
                                             styles.dayName,
-                                            selected && styles.selectedDayName,
+                                            selected && styles.selectedDayName
                                         ]}
                                     >
                                         {getDayName(date)}
@@ -118,20 +122,18 @@ const HorizontalCalendar: React.FC<HorizontalCalendarProps> = ({ onDateSelect })
                                     <View
                                         style={[
                                             styles.dayCircle,
-                                            selected && styles.selectedCircle,
+                                            selected && styles.selectedCircle
                                         ]}
                                     >
                                         <Text
                                             style={[
                                                 styles.dayNumber,
-                                                selected && styles.selectedDayNumber,
+                                                selected && styles.selectedDayNumber
                                             ]}
                                         >
                                             {getDayNumber(date)}
                                         </Text>
                                     </View>
-
-                                    {today && <View style={styles.todayDot} />}
                                 </TouchableOpacity>
                             );
                         })}
@@ -147,19 +149,26 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     weekContainer: {
-        width: SCREEN_WIDTH - 20,
+        width: CALENDAR_WIDTH,
         flexDirection: 'row',
+        paddingHorizontal: HORIZONTAL_PADDING,
     },
     dateItem: {
         width: ITEM_WIDTH,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingVertical: 8,
+        paddingTop: 10,
+        paddingBottom: 5,
         position: 'relative',
+        marginHorizontal: ITEM_MARGIN
     },
     selectedItem: {
         backgroundColor: '#000',
-        borderRadius: 10,
+        borderRadius: 30,
+    },
+    selectedTodayItem: {
+        backgroundColor: '#fff',
+        borderRadius: 30,
     },
     dayName: {
         fontSize: 12,
@@ -174,12 +183,13 @@ const styles = StyleSheet.create({
     dayCircle: {
         width: 35,
         height: 35,
-        borderRadius: 20,
+        borderRadius: 40,
         justifyContent: 'center',
         alignItems: 'center',
     },
     selectedCircle: {
         backgroundColor: '#fff',
+        borderRadius: 40,
     },
     dayNumber: {
         fontSize: 16,
@@ -196,24 +206,6 @@ const styles = StyleSheet.create({
         height: 5,
         borderRadius: 2.5,
         backgroundColor: 'red',
-    },
-    indicatorContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        paddingVertical: 10,
-    },
-    indicator: {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
-        backgroundColor: 'rgba(0,0,0,0.2)',
-        marginHorizontal: 3,
-    },
-    activeIndicator: {
-        backgroundColor: '#000',
-        width: 8,
-        height: 8,
-        borderRadius: 4,
     },
 });
 

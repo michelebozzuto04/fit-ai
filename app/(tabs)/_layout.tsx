@@ -16,16 +16,22 @@ export default function TabLayout() {
         tabBarActiveTintColor: 'black',
         headerShown: false,
         tabBarButton: HapticTab,
-        tabBarHideOnKeyboard: true, // Add this
+        tabBarHideOnKeyboard: true,
         tabBarStyle: {
           position: 'absolute',
-          height: 70 + insets.bottom, // Add bottom inset to height
-          paddingBottom: insets.bottom, // Respect safe area
+          height: 70 + insets.bottom,
+          paddingBottom: insets.bottom,
           paddingTop: 5,
           elevation: 0,
           borderColor: '#fff',
-          backgroundColor: '#fff'
+          backgroundColor: '#fff',
+          // Performance optimizations
+          borderTopWidth: 0,
+          shadowOpacity: 0,
         },
+        // Add lazy loading and animation configs
+        lazy: true,
+        animation: 'shift', // or 'fade'
       }}>
       <Tabs.Screen
         name="home"
