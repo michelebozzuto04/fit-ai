@@ -1,8 +1,11 @@
-import SingleGridGraph from '@/components/graphs/SingleGridGraph';
+import GoalProgress from '@/components/graphs/GoalProgress';
+import WeightGraph from '@/components/graphs/WeightGraph';
+import AddActivityBottomSheet from '@/components/ui/AddActivityBottomSheet';
 import AddFloatingButton from '@/components/ui/AddFloatingButton';
 import Avatar from '@/components/ui/Avatar';
 import SharedBackground from '@/components/ui/SharedBackground';
-import React, { memo } from 'react';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import React, { memo, useCallback, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,7 +14,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 const ProgressHeader = memo(() => (
   <View style={styles.header}>
     <Avatar name="Michele Bozzuto" size={35} />
-    <Text style={styles.headerTitle}>Your Progress</Text>
+    <Text style={styles.headerTitle}>Progress</Text>
   </View>
 ));
 
@@ -19,6 +22,11 @@ ProgressHeader.displayName = 'ProgressHeader';
 
 const Progress = () => {
   const insets = useSafeAreaInsets();
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
+
+  const handleOpenBottomSheet = useCallback(() => {
+    bottomSheetRef.current?.present();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -34,27 +42,31 @@ const Progress = () => {
         >
           <View style={styles.paddedContent}>
             <ProgressHeader />
-            <View>
-              <SingleGridGraph
+            <View style={styles.graphRow}>
+              <WeightGraph
                 label={'Current Weight'}
-                currentValue={'7,350'}
-                targetValue={'10,000'}
+                currentValue={'94'}
+                targetValue={'80'}
                 iconName={'footsteps'}
-                color={'#1CC841'}
+                color={'#000'}
+                unit={'Kg'}
               />
-              <SingleGridGraph
-                label={'Steps'}
-                currentValue={'7,350'}
-                targetValue={'10,000'}
+              <WeightGraph
+                label={'Current Weight'}
+                currentValue={'94'}
+                targetValue={'80'}
                 iconName={'footsteps'}
-                color={'#1CC841'}
+                color={'#000'}
                 unit={'Kg'}
               />
             </View>
+
+            <GoalProgress />
           </View>
         </ScrollView>
-        <AddFloatingButton />
+        <AddFloatingButton onPress={handleOpenBottomSheet} />
       </SafeAreaView>
+      <AddActivityBottomSheet ref={bottomSheetRef} />
     </View>
   );
 };
@@ -83,6 +95,11 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 15
+    gap: 15,
+    marginBottom: 15
+  },
+  graphRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between'
   }
 });

@@ -1,8 +1,11 @@
 import ActivitySummary from '@/components/ActivitySummary';
+import AddActivityBottomSheet from '@/components/ui/AddActivityBottomSheet';
 import AddFloatingButton from '@/components/ui/AddFloatingButton';
 import Avatar from '@/components/ui/Avatar';
 import SharedBackground from '@/components/ui/SharedBackground';
-import React, { memo, useCallback, useState } from 'react';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { router } from 'expo-router';
+import React, { memo, useCallback, useRef, useState } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { TouchableRipple } from 'react-native-paper';
@@ -12,7 +15,13 @@ import HorizontalCalendar from '../../components/ui/HorizontalCalendar';
 // Memoize header to prevent re-renders
 const Header = memo(() => (
     <View style={styles.header}>
-        <Avatar name="Michele Bozzuto" size={35} />
+        <TouchableRipple
+            borderless
+            style={{ borderRadius: 100 }}
+            onPress={() => router.navigate('/settings/settings')}
+        >
+            <Avatar name="Michele Bozzuto" size={35} />
+        </TouchableRipple>
         <View style={styles.headerActions}>
             <TouchableRipple
                 borderless
@@ -43,9 +52,18 @@ Header.displayName = 'Header';
 const Home = () => {
     const [selectedDate, setSelectedDate] = useState(new Date());
     const insets = useSafeAreaInsets();
+    const bottomSheetRef = useRef<BottomSheetModal>(null);
 
     const handleDateSelect = useCallback((date: any) => {
         console.log('Selected date:', date);
+    }, []);
+
+    const handleOpenBottomSheet = useCallback(() => {
+        bottomSheetRef.current?.present();
+    }, []);
+
+    const handleOpenCamera = useCallback(() => {
+        router.navigate('/camera/camera')
     }, []);
 
     return (
@@ -58,7 +76,7 @@ const Home = () => {
                     showsVerticalScrollIndicator={false}
                     bounces={false}
                     overScrollMode="never"
-                    removeClippedSubviews={true} // Performance boost
+                    removeClippedSubviews={true}
                 >
                     <View style={styles.paddedContent}>
                         <Header />
@@ -66,8 +84,9 @@ const Home = () => {
                     </View>
                     <ActivitySummary />
                 </ScrollView>
-                <AddFloatingButton />
+                <AddFloatingButton onPress={handleOpenCamera} />
             </SafeAreaView>
+            <AddActivityBottomSheet ref={bottomSheetRef} />
         </View>
     );
 };

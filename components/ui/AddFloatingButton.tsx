@@ -1,17 +1,22 @@
-import Ionicons from '@expo/vector-icons/Ionicons'
-import React from 'react'
-import { StyleSheet, TouchableOpacity } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import Ionicons from '@expo/vector-icons/Ionicons';
+import React from 'react';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const AddFloatingButton = () => {
+interface AddFloatingButtonProps {
+    onPress: () => void;
+}
+
+const AddFloatingButton = ({ onPress }: AddFloatingButtonProps) => {
     const insets = useSafeAreaInsets()
 
     return (
         <TouchableOpacity
             style={[styles.mainContainer, {
-                bottom: 70 + insets.bottom + 10 // Tab bar height (70) + insets + spacing (10)
+                bottom: 70 + insets.bottom + 10
             }]}
             activeOpacity={0.8}
+            onPress={onPress}
         >
             <Ionicons name='add-sharp' color={'#fff'} size={24} />
         </TouchableOpacity>
