@@ -1,11 +1,15 @@
+import CameraModesSwitch from '@/components/ui/CameraModeSwitch';
+import { Ionicons } from '@expo/vector-icons';
 import { CameraType, CameraView, useCameraPermissions } from 'expo-camera';
 import { router, Stack } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { TouchableRipple } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CameraScreen() {
     const [facing, setFacing] = useState<CameraType>('back');
+    const [torchEnabled, setTorchEnabled] = useState(false);
     const [permission, requestPermission] = useCameraPermissions();
     const [photo, setPhoto] = useState<string | null>(null);
     const cameraRef = useRef<CameraView>(null);
@@ -38,8 +42,8 @@ export default function CameraScreen() {
         );
     }
 
-    const toggleCameraFacing = () => {
-        setFacing(current => (current === 'back' ? 'front' : 'back'));
+    const toggleFlash = () => {
+        setTorchEnabled(current => !current);
     };
 
     const takePicture = async () => {
@@ -65,43 +69,98 @@ export default function CameraScreen() {
 
     if (photo) {
         return (
-            <View style={styles.container}>
-                <SafeAreaView style={styles.previewContainer}>
-                    <Image source={{ uri: photo }} style={styles.preview} />
-                    <View style={styles.previewActions}>
-                        <TouchableOpacity style={styles.button} onPress={retakePhoto}>
-                            <Text style={styles.buttonText}>Retake</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={[styles.button, styles.primaryButton]} onPress={usePhoto}>
-                            <Text style={styles.buttonText}>Use Photo</Text>
-                        </TouchableOpacity>
-                    </View>
-                </SafeAreaView>
-            </View>
+            <>
+                <Stack.Screen options={{ headerShown: false }} />
+                <View style={styles.container}>
+                    <SafeAreaView style={styles.previewContainer}>
+                        <Image source={{ uri: photo }} style={styles.preview} />
+                        <View style={styles.previewActions}>
+                            <TouchableOpacity style={styles.button} onPress={retakePhoto}>
+                                <Text style={styles.buttonText}>Retake</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={[styles.button, styles.primaryButton]} onPress={usePhoto}>
+                                <Text style={styles.buttonText}>Use Photo</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </SafeAreaView>
+                </View>
+            </>
         );
     }
 
     return (
-        <View style={styles.container}>
-            <CameraView style={styles.camera} facing={facing} ref={cameraRef}>
-                <SafeAreaView style={styles.cameraControls}>
-                    <View style={styles.topControls}>
-                        <TouchableOpacity style={styles.closeButton} onPress={() => router.back()}>
-                            <Text style={styles.closeButtonText}>✕</Text>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={styles.bottomControls}>
-                        <TouchableOpacity style={styles.flipButton} onPress={toggleCameraFacing}>
-                            <Text style={styles.flipButtonText}>🔄</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
-                            <View style={styles.captureButtonInner} />
-                        </TouchableOpacity>
-                        <View style={styles.flipButton} />
-                    </View>
-                </SafeAreaView>
-            </CameraView>
-        </View>
+        <>
+            <Stack.Screen options={{ headerShown: false }} />
+            <View style={styles.container}>
+                <CameraView
+                    style={styles.camera}
+                    facing={facing}
+                    ref={cameraRef}
+                    enableTorch={torchEnabled}
+                >
+                    <SafeAreaView style={styles.cameraControls}>
+                        <View style={styles.topControls}>
+                            <TouchableRipple
+                                borderless
+                                style={styles.closeButton}
+                                onPress={() => router.back()}
+                            >
+                                <Ionicons name="arrow-back-sharp" size={24} color="#fff" />
+                            </TouchableRipple>
+                            <Text style={styles.screenTitle}>Scan a meal</Text>
+                            <TouchableRipple
+                                borderless
+                                style={styles.closeButton}
+                                onPress={() => console.log('More button (da vedere)')}
+                            >
+                                <Ionicons name="ellipsis-horizontal-sharp" size={24} color="#fff" />
+                            </TouchableRipple>
+                        </View>
+
+                        {/* Scan Frame Overlay */}
+                        <View style={styles.scanFrameContainer}>
+                            <View style={styles.scanFrame}>
+                                {/* Top Left Corner */}
+                                <View style={[styles.corner, styles.topLeft]} />
+                                {/* Top Right Corner */}
+                                <View style={[styles.corner, styles.topRight]} />
+                                {/* Bottom Left Corner */}
+                                <View style={[styles.corner, styles.bottomLeft]} />
+                                {/* Bottom Right Corner */}
+                                <View style={[styles.corner, styles.bottomRight]} />
+                            </View>
+                            <Text style={styles.scanText}>Position your meal within the frame</Text>
+                        </View>
+
+                        <View style={styles.cameraModeContainer}>
+                            <CameraModesSwitch selectedMode='scan' onModeChange={() => console.log('Camera mode changed...')} />
+                        </View>
+
+                        <View style={styles.bottomControls}>
+                            <TouchableRipple
+                                borderless
+                                style={styles.flashButton}
+                                onPress={toggleFlash}
+                            >
+                                <Ionicons
+                                    name={torchEnabled ? 'flash' : 'flash-off'}
+                                    size={20}
+                                    color="#fff"
+                                />
+                            </TouchableRipple>
+                            <TouchableRipple
+                                borderless
+                                style={styles.captureButton}
+                                onPress={takePicture}
+                            >
+                                <View style={styles.captureButtonInner} />
+                            </TouchableRipple>
+                            <View style={styles.flashButton} />
+                        </View>
+                    </SafeAreaView>
+                </CameraView>
+            </View>
+        </>
     );
 }
 
@@ -125,20 +184,22 @@ const styles = StyleSheet.create({
     },
     topControls: {
         padding: 20,
-        alignItems: 'flex-end',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
     closeButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        width: 50,
+        height: 50,
+        borderRadius: 100,
+        backgroundColor: 'rgba(255, 255, 255, 0.3)',
         justifyContent: 'center',
         alignItems: 'center',
     },
-    closeButtonText: {
+    screenTitle: {
         color: '#fff',
-        fontSize: 24,
-        fontWeight: 'bold',
+        fontSize: 18,
+        fontFamily: 'SpaceGrotesk-Bold'
     },
     bottomControls: {
         flexDirection: 'row',
@@ -163,16 +224,13 @@ const styles = StyleSheet.create({
         borderRadius: 30,
         backgroundColor: '#fff',
     },
-    flipButton: {
-        width: 50,
-        height: 50,
+    flashButton: {
+        width: 40,
+        height: 40,
         borderRadius: 25,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: 'rgba(255, 255, 255, 0.3)',
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    flipButtonText: {
-        fontSize: 24,
     },
     button: {
         backgroundColor: 'rgba(255, 255, 255, 0.3)',
@@ -204,4 +262,65 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
         paddingHorizontal: 20,
     },
+    // Scan Frame Styles
+    scanFrameContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    scanFrame: {
+        width: 280,
+        height: 280,
+        position: 'relative',
+    },
+    corner: {
+        position: 'absolute',
+        width: 40,
+        height: 40,
+        borderColor: '#fff',
+        borderWidth: 4,
+    },
+    topLeft: {
+        top: 0,
+        left: 0,
+        borderRightWidth: 0,
+        borderBottomWidth: 0,
+        borderTopLeftRadius: 20,
+    },
+    topRight: {
+        top: 0,
+        right: 0,
+        borderLeftWidth: 0,
+        borderBottomWidth: 0,
+        borderTopRightRadius: 20,
+    },
+    bottomLeft: {
+        bottom: 0,
+        left: 0,
+        borderRightWidth: 0,
+        borderTopWidth: 0,
+        borderBottomLeftRadius: 20,
+    },
+    bottomRight: {
+        bottom: 0,
+        right: 0,
+        borderLeftWidth: 0,
+        borderTopWidth: 0,
+        borderBottomRightRadius: 20,
+    },
+    scanText: {
+        color: '#fff',
+        fontSize: 14,
+        marginTop: 20,
+        textAlign: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        paddingHorizontal: 20,
+        paddingVertical: 8,
+        borderRadius: 20,
+    },
+    cameraModeContainer: {
+        width: '80%',
+        alignSelf: 'center',
+        bottom: 40
+    }
 });

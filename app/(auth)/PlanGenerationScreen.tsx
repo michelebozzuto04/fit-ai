@@ -3,6 +3,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Animated, StyleSheet, Text, View } from 'react-native';
+import { usePlan } from '../../contexts/PlanContext'; // Import context
 
 const generationSteps = [
     { icon: 'body', text: 'Analyzing your profile...', duration: 2000 },
@@ -12,19 +13,18 @@ const generationSteps = [
     { icon: 'checkmark-circle', text: 'Finalizing your plan...', duration: 2000 }
 ];
 
-const API_URL = 'http://192.168.178.94:3000'; // Replace with your actual server URL
+const API_URL = 'http://192.168.178.94:3000';
 
 export default function PlanGenerationScreen() {
     const params = useLocalSearchParams();
+    const { setPlan } = usePlan(); // Get setPlan from context
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [progress, setProgress] = useState(0);
-    const [generatedPlan, setGeneratedPlan] = useState(null);
     const [error, setError] = useState<string | null>(null);
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const scaleAnim = useRef(new Animated.Value(0.8)).current;
 
     useEffect(() => {
-        // Fade in animation
         Animated.parallel([
             Animated.timing(fadeAnim, {
                 toValue: 1,
@@ -39,26 +39,23 @@ export default function PlanGenerationScreen() {
             })
         ]).start();
 
-        // Start generating plan
         generatePlan();
     }, []);
 
     const generatePlan = async () => {
         try {
-            // Parse survey data from params
             const surveyData = typeof params.surveyData === 'string'
                 ? JSON.parse(params.surveyData)
                 : params.surveyData;
 
             console.log('Generating plan with data:', surveyData);
 
-            // Start progress animation
             let currentProgress = 0;
             let stepIndex = 0;
 
             const progressInterval = setInterval(() => {
                 currentProgress += 2;
-                setProgress(Math.min(currentProgress, 95)); // Stop at 95% until API responds
+                setProgress(Math.min(currentProgress, 95));
             }, 100);
 
             const stepTimer = setInterval(() => {
@@ -68,7 +65,6 @@ export default function PlanGenerationScreen() {
                 }
             }, 2000);
 
-            // Call API
             const response = await fetch(`${API_URL}/plan/generate`, {
                 method: 'POST',
                 headers: {
@@ -87,18 +83,15 @@ export default function PlanGenerationScreen() {
             const data = await response.json();
 
             if (data.success) {
-                setGeneratedPlan(data);
+                // Save plan to context (which also saves to AsyncStorage)
+                await setPlan(data);
+
                 setProgress(100);
                 setCurrentStepIndex(generationSteps.length - 1);
 
-                // Wait a moment to show completion, then navigate
                 setTimeout(() => {
-                    router.replace({
-                        pathname: '/(auth)/planView',
-                        params: {
-                            planData: JSON.stringify(data)
-                        }
-                    });
+                    // Navigate without passing data - context now has it!
+                    router.replace('/(auth)/planView');
                 }, 1000);
             } else {
                 throw new Error(data.error || 'Failed to generate plan');
@@ -114,7 +107,7 @@ export default function PlanGenerationScreen() {
                 'Failed to generate your plan. Please check your connection and try again.',
                 [
                     {
-                        text: 'Retry',
+                        text: 'Try again',
                         onPress: () => {
                             setError(null);
                             generatePlan();
@@ -143,7 +136,6 @@ export default function PlanGenerationScreen() {
                     }
                 ]}
             >
-                {/* Icon with pulse animation */}
                 <View style={styles.iconContainer}>
                     <Ionicons
                         name={currentStep.icon as any}
@@ -152,7 +144,6 @@ export default function PlanGenerationScreen() {
                     />
                 </View>
 
-                {/* Loading text */}
                 <Text style={styles.title}>
                     {error ? 'Generation Failed' : 'Creating Your Plan'}
                 </Text>
@@ -160,7 +151,6 @@ export default function PlanGenerationScreen() {
                     {error || currentStep.text}
                 </Text>
 
-                {/* Progress bar */}
                 {!error && (
                     <View style={styles.progressContainer}>
                         <View style={styles.progressBarBackground}>
@@ -175,10 +165,8 @@ export default function PlanGenerationScreen() {
                     </View>
                 )}
 
-                {/* Spinner */}
                 {!error && <ActivityIndicator size="large" color="#000" style={styles.spinner} />}
 
-                {/* Info text */}
                 <View style={styles.infoContainer}>
                     <Text style={styles.infoText}>
                         {error
@@ -188,7 +176,6 @@ export default function PlanGenerationScreen() {
                     </Text>
                 </View>
 
-                {/* Step indicators */}
                 {!error && (
                     <View style={styles.stepIndicators}>
                         {generationSteps.map((step, index) => (
